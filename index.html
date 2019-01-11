@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>自己的园地</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+    <meta property="og:type" content="website">
+<meta property="og:title" content="自己的园地">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="自己的园地">
+<meta property="og:locale" content="default">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自己的园地">
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+
+    
+    
+    
+    
+    
+    
+
+    
+
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                <img src="/images/logo.png" alt="" height="28">
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item " href="/archives">Archives</a>
+            
+            <a class="navbar-item " href="/categories/LifeStyle">Lifestyle</a>
+            
+            <a class="navbar-item " href="/categories/Music">Music</a>
+            
+            <a class="navbar-item " href="/categories/Technology">Technology</a>
+            
+            <a class="navbar-item " href="/about">About</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" title="Search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" title="GitHub" href="https://github.com/ppoffice/hexo-theme-minos">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2019/01/10/20190110-google-nima/" itemprop="url">NIMA: Neural Image Assessment</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-01-10T11:52:00.000Z" itemprop="datePublished">Jan 10 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            8 minutes read (About 1191 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>图片质量评估在现实中有着非常广泛的应用。例如， 对于用户上传的图片，选择比较美观并且清晰的图片作为相册封面或者缩略图，或是进入推荐系统推荐给其他用户。图片质量一般可分为像素级的技术质量(technical quality)和美学质量(aesthetic quality)。 前者跟照片的模糊程度、噪点及压缩块效应等各种因素有关（例如， 在摄影中， 这通常取决于器材和拍照的参数设置）， 后者则与人类主观上的情绪和美学感受有关，取决于人们自身的审美角度、经验和审美能力。从方法上， 图片质量评估又可分为无参考的方法和有参考的方法， 这里的参考指的是是否存在一张标准的参考图片。在现实场景中， 通常并没有图片可以作为参考， 因此无参考的方法使用更加广泛。</p>
+<p>在深度学习流行起来之后， 学术界快速将深度卷积网络使用到了图片质量评估上。通常的做法是，使用在大规模分类数据集（一般都是ImageNet）上的预训练模型(如AlexNet, VGG等), 再做fine tuning来预测图片的平均质量得分。</p>
+<p>考虑到质量得分的主观性， 相同的图片不同的人打出的质量分可能差别很大(对应的是方差很大)， 例如， 毕加索的画便有许多的人无法欣赏，这个现象是无法反应在平均值上的。因此，在论文<a href="https://arxiv.org/pdf/1709.05424.pdf" target="_blank" rel="noopener">《NIMA: Neural Image Assessment》</a>中， Google Research的研究人员将预测的目标修改为了图片的质量得分的分布。具体来说， 将得分从低到高划分为N(N=10)个桶， 归一化后得到用户得分落在每个桶的概率。每个桶都可以看成是一个类别， 因此， 图片的质量预测成了一个多分类问题。网络结构如下:</p>
+<p><img src="/images/nima-network.png" alt=""></p>
+<p>由于这些类别之间存在序关系， 对于分类器而言， 将5错分为6和将5错分为10， 这两种情况下的错误程度差别是很大的。而通常的交叉熵损失函数无法反应这种情况。 在文中， 作者使用的是 Earth Mover’s Distance, 定义如下:</p>
+<p><img src="/images/nima-loss.png" alt=""></p>
+<p>其中, CDF为累积概率分布， 定义为:</p>
+<p>$$<br>CDF_p{k} = \sum_{i = 1}^{k}{p_{s_i}}<br>$$</p>
+<p>在 Keras中, 其实现如下:</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">from</span> keras <span class="hljs-keyword">import</span> backend <span class="hljs-keyword">as</span> K</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">earth_movers_distance</span><span class="hljs-params">(y_true, y_pred)</span>:</span></span><br><span class="line">    cdf_true = K.cumsum(y_true, axis=<span class="hljs-number">-1</span>)</span><br><span class="line">    cdf_pred = K.cumsum(y_pred, axis=<span class="hljs-number">-1</span>)</span><br><span class="line">    emd = K.sqrt(K.mean(K.square(cdf_true - cdf_pred), axis=<span class="hljs-number">-1</span>))</span><br><span class="line">    <span class="hljs-keyword">return</span> K.mean(emd)</span><br></pre></td></tr></table></figure>
+<p>在文中， 作者使用的是L2距离， 因为方便求导。</p>
+<p>作者在3个图片质量相关的数据集, AVA, TID2013和LIVE数据集上分别进行了训练和测试， 同时对比了VGG, InceptionV2和MobileNet这3个流行的网络结构。在AVA数据集上的结果数据如图:</p>
+<p><img src="/images/nima-ava-result.png" alt=""></p>
+<p>其中， LCC代表 linear correlation coefficient, SRCC代表 Spearman’s rank correlation coefficient, EMD代表Earth Mover Distance。</p>
+<p>可以看出，Inception-v2 网络的准确度已经与当前的state of the art持平，并且NIMA由于只需要进行一次前身计算， 性能远远胜出。</p>
+<p>TID2013上的结果如下:</p>
+<p><img src="/images/nima-tid2013.png" alt=""></p>
+<p>与最高水平还有一点点差距， 不过贵在简单高效。</p>
+<p>作者还给出了基于AVA数据集的模型在风景这个类别下的预测结果(平均分和方差):</p>
+<p><img src="/images/nima-pred-examples.png" alt=""></p>
+<p>可以看到， 整体上比较符合人类的感官认知。</p>
+<p>在文中， 作者也提到， 通过对色调、对比度的调整可以提高图片的美学质量分。 由此可以指导自动化的图片编辑， 比如自动增强图片， 即寻找图片的最优对比度、色调等参数， 使得其美学质量分最大化。如果这个过程本身是可微分的（例如采用的是神经网络), 那么可以通过类似Actor-Critic的模型端到端地解决。</p>
+<p>实现:</p>
+<ul>
+<li>idealo.de 公司的实现: <a href="https://github.com/idealo/image-quality-assessment" target="_blank" rel="noopener">https://github.com/idealo/image-quality-assessment</a></li>
+<li>博客文章: <a href="https://medium.com/idealo-tech-blog/using-deep-learning-to-automatically-rank-millions-of-hotel-images-c7e2d2e5cae2" target="_blank" rel="noopener">Using Deep Learning to automatically rank millions of hotel images</a> by idealo</li>
+</ul>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2019/01/10/20181218-illustration2vec/" itemprop="url">Illustration2Vec: A Semantic Vector Representation of Illustrations</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-01-10T01:52:00.000Z" itemprop="datePublished">Jan 10 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            8 minutes read (About 1246 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>如今， 动漫早已成为年轻人文化生活的一部分。 对于做内容的互联网服务而言， 二次元也是抓住年轻人兴趣的一个很好的切入点。然而， 在信息如此泛滥的年代， 在海量的二次元资源中， 如何快速找到自己心宜的二次元漫画是一个很大的难题。来自日本东京大学的Masaki Saito作为一个动漫爱好者， 从学术的角度， 利用当前流行的深度学习方法提出了一些解决方案。论文<a href="https://www.gwern.net/docs/anime/2015-saito.pdf" target="_blank" rel="noopener">《llustration2Vec: A Semantic Vector Representation of Illustrations》</a> 揭示了与此相关的诸多细节。</p>
+<p>在这篇文章中， Saito 探讨了如何对动漫图片进行语义embedding的问题， 从而使得基于海明距离的最近邻查找成为可能。基于此， 作者还推出了一个称之为语义变形(Semantic Mophing)的工具: 给定两张动漫图片作为Query, 系统返回从这两张图片内容和风格之间渐进变化的动漫图片。如下图所示:</p>
+<p><img src="/images/semantic-mophing.png" alt=""></p>
+<p>谈起图片向量化， 一种很自然的想法是直接拿一个在ImageNet中训练好的模型， 取倒数第二层或者第三层的节点输出即可。这在Keras中非常容易实现， 只需要几行代码便可完成。<a href="https://keras.io/applications/" target="_blank" rel="noopener">Keras文档</a>中给了一个例子:</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">base_model = VGG19(weights=<span class="hljs-string">'imagenet'</span>)</span><br><span class="line">model = Model(inputs=base_model.input, outputs=base_model.get_layer(<span class="hljs-string">'block4_pool'</span>).output)</span><br><span class="line"></span><br><span class="line">img_path = <span class="hljs-string">'elephant.jpg'</span></span><br><span class="line">img = image.load_img(img_path, target_size=(<span class="hljs-number">224</span>, <span class="hljs-number">224</span>))</span><br><span class="line">x = image.img_to_array(img)</span><br><span class="line">x = np.expand_dims(x, axis=<span class="hljs-number">0</span>)</span><br><span class="line">x = preprocess_input(x)</span><br><span class="line"></span><br><span class="line">block4_pool_features = model.predict(x)</span><br></pre></td></tr></table></figure>
+<p>当然还有更好的做法: 基于当前的数据集训练一个分类网络（在大部分情况， 基于ImageNet预训练模型做fine-tuning即可）， 再取末层的全连接层或者feature map做为图片的embedding。</p>
+<p>在这篇文章中， 作者基于一些动漫网站服务收集了1287596张图片。这些图片都有着丰富的标签信息，具体来说包括四个维度：</p>
+<ul>
+<li>代表一般内容属性的通用标签， 如<code>weapon</code>, <code>smile</code>。</li>
+<li>版权标签, 如<code>vocoloid</code>。</li>
+<li>人物标签，如<code>hatsune miku</code>。</li>
+<li>X分级标签，如<code>safe</code>, <code>questionable</code>, <code>explicit</code>。</li>
+</ul>
+<p>作者从前三个类别中各挑选了最热门的512个标签，加上X分级的3个， 一共得到1539个标签， 并由此训练一个多标签分类模型。模型的特征提取部分复用了VGG16(论文发表于2015年， 正是VGG风靡的时代)，考虑到标签预测需要更多地关注图片的局部细节， 作者抛弃了VGG中的全连接层， 以NIN网络替换之。在最后， 拼接一个sigmoid以对每一个标签做概率预测。 损失函数采用交叉熵。网络结构及于VGG16的对比如下图示:</p>
+<p><img src="/images/illustration2vec-network.png" alt=""></p>
+<p>在评测环节中， 作者对比了该网络结构及预训练网络及VGG网络在各个分类下的MAP值， 如下图示。</p>
+<p><img src="/images/illustration2vec-map.png" alt=""></p>
+<p>其中，预训练网络使用VGG的最后一个FC层来做特征提取， 然后使用逻辑回归来对每个标签做二分类。可以看到， VGG + NIN的方法在各个类别下都有非常明显的提升。</p>
+<p>作者也给出了部分具体图片的标签预测效果:</p>
+<p><img src="/images/illustration2vec-pred-results.png" alt=""></p>
+<p>为了得到图片的二进制向量表示， 作者在以上多标签分类网络的基础上， 在最后一层输出之前， 再插入一个sigmoid层。 这可以看成是对特征图的输出值做了0到1范围内的压缩。这样一来， 要得到01向量， 只需要将sigmoid层的值做阈值为0.5的二值化即可。</p>
+<p>基于海明距离的最近邻检索的效果如下:</p>
+<p><img src="/images/illustration2vec-nearest-search.png" alt=""></p>
+<p>还剩最后一个疑问， 图片的语义变形是怎么实现的呢？ 很容易想到， 在向量空间中， 在两张query图片坐标之间的所有图片， 都可以看作是过渡图片。为了加快计算， 可以预先构造一个相似图：每张图片都可以看成图中的一个节点， 对于每个节点， 通过最近邻算法，找出其最相似的k张图片， 从而建立k条边。这样一来，对于任意的两张图片， 其中间的过渡图片即为其对应节点间最短路径上的节点。</p>
+<p>项目地址: <a href="https://github.com/rezoo/illustration2vec" target="_blank" rel="noopener">https://github.com/rezoo/illustration2vec</a></p>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2018/12/14/20181214-rl-policy-methods/" itemprop="url">强化学习中的策略梯度算法</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-12-14T00:22:09.000Z" itemprop="datePublished">Dec 14 2018</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            2 minutes read (About 322 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>在强化学习中， 求解策略有两类方法：基于值函数的方法与基于策略的方法。基于值函数的方法包括SARSA, Q-Learning和Deep Q-Learning, 在动作数据有限时， 这种方法可以通过迭代得到更好的确定性策略。 但是在现实中， 存在许多状态非离散的场景， 而且， 有时随机性的策略更加重要。 基于策略的方法此时是更好的选择。</p>
+<p>在最近几年， 伴随着强化学习不断在各领域攻城略地，基于策略的方法也发展迅猛， 从最原始的REINFORCE, 到AC, A2C, A3C, Trust Region以及DDPG和PPO, 策略算法训练不稳定、难以收敛、容易困在局部最优解这些问题一步一步有了更好的解法。</p>
+<p><img src="images/rl_algorithms.png" alt=""></p>
+<h2 id="REINFORCE"><a href="#REINFORCE" class="headerlink" title="REINFORCE"></a>REINFORCE</h2><p><img src="images/reinforce.png" alt=""></p>
+<p>REINFORCE是由Williams等人于1992年提出的基于Monte Carlo采样的回合制算法：根据当前的策略函数采样出一条轨迹， 然后计算各个step的回报， 再根据梯度上升法更新策略参数。</p>
+<h2 id="REINFORCE-with-Baseline"><a href="#REINFORCE-with-Baseline" class="headerlink" title="REINFORCE with Baseline"></a>REINFORCE with Baseline</h2><p>带Baseline的REINFORCE算法</p>
+<p><img src="reinforce_with_baseline" alt=""></p>
+<h2 id="A2C"><a href="#A2C" class="headerlink" title="A2C"></a>A2C</h2><h2 id="A3C"><a href="#A3C" class="headerlink" title="A3C"></a>A3C</h2><h2 id="DDPG"><a href="#DDPG" class="headerlink" title="DDPG"></a>DDPG</h2><h2 id="PPO"><a href="#PPO" class="headerlink" title="PPO"></a>PPO</h2>
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2018/12/14/20181214-ltr-groupwise-scoring/" itemprop="url">Learning Groupwise Scoring Functions Using Deep Neural Networks</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-12-14T00:04:32.000Z" itemprop="datePublished">Dec 14 2018</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            a minute read (About 189 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>Arxiv: <a href="https://arxiv.org/abs/1811.04415v1" target="_blank" rel="noopener">https://arxiv.org/abs/1811.04415v1</a></p>
+<p>最近，Google开源了基于Tensorflow的Learning To Rank框架(<a href="">Github</a>)。在论文Learning Groupwise Scoring Functions Using Deep Neural Networks中， 作者对TFRanking中的核心算法groupwise scoring functions (GSFs)做了详细说明。</p>
+<p>在传统的LTR算法中， 无论是Pointwise, Pairwise还是Listwise, 对单篇文章的评分并不依赖于相同列表中的其他文档，只是在损失函数层面去学习文档间的相对顺序。而实际上， 用户通常都是在比较中选择的， 其对一篇文档的点击意愿通常也取决于其上下的文档。 GSF正是基于这一思想实现的。</p>
+<p><img src="images/GSF.png" alt=""></p>
+<p>如图所示，</p>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2018/12/04/20181204-numpy-notes/" itemprop="url">Numpy笔记</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-12-04T05:08:28.278Z" itemprop="datePublished">Dec 4 2018</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            2 minutes read (About 243 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <h2 id="np-meshgrid"><a href="#np-meshgrid" class="headerlink" title="np.meshgrid"></a>np.meshgrid</h2><p>在介绍momentum算法的一篇文章中看到了这个函数， 刚开始看的时候一头雾水， 后来发现 <a href="https://www.jianshu.com/p/4b49e85a878c" target="_blank" rel="noopener">这篇文章</a> 讲得比较明白。</p>
+<p>meshgrid的作用是生成一个网格。对于一个网格来说，从下往上看， 每一行的横坐标都是[x0, x1, x2, …, x_a], 一共有b行。每一行的纵坐标都是一样的， 这b行的纵坐标对应了第二个参数的维度。因此，meshgrid实际上是返回了这个网格的所有点的横纵坐标。 其中， 横坐标为第一个矩阵， 纵坐标为第二个矩阵。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5462537-fb9a4bd7d2671e1b.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000" alt=""></p>
+<p>meshgrid通常应用于等高线及超平面的绘制。如下图示:<br><img src="https://upload-images.jianshu.io/upload_images/5462537-8ead818fef16048a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/579" alt=""></p>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2018/12/01/20181201-dcn/" itemprop="url">Deep &amp; Cross Network for Ad Click Predictions</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-12-01T00:05:45.158Z" itemprop="datePublished">Dec 1 2018</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            2 minutes read (About 311 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>Arxiv: <a href="https://arxiv.org/abs/1708.05123" target="_blank" rel="noopener">1708.05123</a></p>
+<p>这篇文章由Google与Standford合作发表于2017年， 主要贡献在于提出了一个新的CTR预估网络架构， 可以通过网络高效地学习特征的多层交叉表示。</p>
+<p>网络结构如下图示：</p>
+<p><img src="/images/181201-3.png" alt=""></p>
+<p>网络可以看成是分别通过Cross Network和Deep Network来抽取特征， 最后做一个线性融合。两个网络共享相同的输入， 即将离散特征做Embedding之后， 与归一化后的连续特征做Concat, 再分别输入到Cross Network和Deep Network中。Deep Network是常规的前馈网络。Cross Network则包含一层或多层Cross Layer, Cross Layer可以看成是以下函数:</p>
+<p><img src="/images/181201-1.png" alt=""></p>
+<p><img src="/images/181201-2.png" alt=""></p>
+<p>作者证明， l层的Cross Network, 可以拟合特征的任意l+1阶关系。（证明过程符号太多， 看不下去了。</p>
+<p>此外， DCN可以看成是对FM的扩展， FM出于性能限制，只能建模两阶的特征交叉关系。</p>
+<p>在实现上， Cross Layer的计算效率非常高。 从公式中可以看出，计算复杂度为O(d), 其中d为特征的维度。</p>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+    
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2019 七弦&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" title="GitHub" href="https://github.com/ppoffice/hexo-theme-minos">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+    moment.locale("default");
+</script>
+
+
+    
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        "HTML-CSS": {matchFontHeight: false},
+        SVG: {matchFontHeight: false},
+        CommonHTML: {matchFontHeight: false}
+    });
+</script>
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="Type something...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>

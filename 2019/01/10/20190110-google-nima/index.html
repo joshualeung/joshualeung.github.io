@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>NIMA: Neural Image Assessment - 自己的园地</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+    <meta name="description" content="图片质量评估在现实中有着非常广泛的应用。例如， 对于用户上传的图片，选择比较美观并且清晰的图片作为相册封面或者缩略图，或是进入推荐系统推荐给其他用户。图片质量一般可分为像素级的技术质量(technical quality)和美学质量(aesthetic quality)。 前者跟照片的模糊程度、噪点及压缩块效应等各种因素有关（例如， 在摄影中， 这通常取决于器材和拍照的参数设置）， 后者则与人类主">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NIMA: Neural Image Assessment">
+<meta property="og:url" content="http://yoursite.com/2019/01/10/20190110-google-nima/index.html">
+<meta property="og:site_name" content="自己的园地">
+<meta property="og:description" content="图片质量评估在现实中有着非常广泛的应用。例如， 对于用户上传的图片，选择比较美观并且清晰的图片作为相册封面或者缩略图，或是进入推荐系统推荐给其他用户。图片质量一般可分为像素级的技术质量(technical quality)和美学质量(aesthetic quality)。 前者跟照片的模糊程度、噪点及压缩块效应等各种因素有关（例如， 在摄影中， 这通常取决于器材和拍照的参数设置）， 后者则与人类主">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/nima-network.png">
+<meta property="og:image" content="http://yoursite.com/images/nima-loss.png">
+<meta property="og:image" content="http://yoursite.com/images/nima-ava-result.png">
+<meta property="og:image" content="http://yoursite.com/images/nima-tid2013.png">
+<meta property="og:image" content="http://yoursite.com/images/nima-pred-examples.png">
+<meta property="og:updated_time" content="2019-01-11T02:59:26.323Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NIMA: Neural Image Assessment">
+<meta name="twitter:description" content="图片质量评估在现实中有着非常广泛的应用。例如， 对于用户上传的图片，选择比较美观并且清晰的图片作为相册封面或者缩略图，或是进入推荐系统推荐给其他用户。图片质量一般可分为像素级的技术质量(technical quality)和美学质量(aesthetic quality)。 前者跟照片的模糊程度、噪点及压缩块效应等各种因素有关（例如， 在摄影中， 这通常取决于器材和拍照的参数设置）， 后者则与人类主">
+<meta name="twitter:image" content="http://yoursite.com/images/nima-network.png">
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+
+    
+    
+    
+    
+    
+    
+
+    
+
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                <img src="/images/logo.png" alt="" height="28">
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item " href="/archives">Archives</a>
+            
+            <a class="navbar-item " href="/categories/LifeStyle">Lifestyle</a>
+            
+            <a class="navbar-item " href="/categories/Music">Music</a>
+            
+            <a class="navbar-item " href="/categories/Technology">Technology</a>
+            
+            <a class="navbar-item " href="/about">About</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" title="Search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" title="GitHub" href="https://github.com/ppoffice/hexo-theme-minos">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            NIMA: Neural Image Assessment
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-01-10T11:52:00.000Z" itemprop="datePublished">Jan 10 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            8 minutes read (About 1191 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>图片质量评估在现实中有着非常广泛的应用。例如， 对于用户上传的图片，选择比较美观并且清晰的图片作为相册封面或者缩略图，或是进入推荐系统推荐给其他用户。图片质量一般可分为像素级的技术质量(technical quality)和美学质量(aesthetic quality)。 前者跟照片的模糊程度、噪点及压缩块效应等各种因素有关（例如， 在摄影中， 这通常取决于器材和拍照的参数设置）， 后者则与人类主观上的情绪和美学感受有关，取决于人们自身的审美角度、经验和审美能力。从方法上， 图片质量评估又可分为无参考的方法和有参考的方法， 这里的参考指的是是否存在一张标准的参考图片。在现实场景中， 通常并没有图片可以作为参考， 因此无参考的方法使用更加广泛。</p>
+<p>在深度学习流行起来之后， 学术界快速将深度卷积网络使用到了图片质量评估上。通常的做法是，使用在大规模分类数据集（一般都是ImageNet）上的预训练模型(如AlexNet, VGG等), 再做fine tuning来预测图片的平均质量得分。</p>
+<p>考虑到质量得分的主观性， 相同的图片不同的人打出的质量分可能差别很大(对应的是方差很大)， 例如， 毕加索的画便有许多的人无法欣赏，这个现象是无法反应在平均值上的。因此，在论文<a href="https://arxiv.org/pdf/1709.05424.pdf" target="_blank" rel="noopener">《NIMA: Neural Image Assessment》</a>中， Google Research的研究人员将预测的目标修改为了图片的质量得分的分布。具体来说， 将得分从低到高划分为N(N=10)个桶， 归一化后得到用户得分落在每个桶的概率。每个桶都可以看成是一个类别， 因此， 图片的质量预测成了一个多分类问题。网络结构如下:</p>
+<p><img src="/images/nima-network.png" alt=""></p>
+<p>由于这些类别之间存在序关系， 对于分类器而言， 将5错分为6和将5错分为10， 这两种情况下的错误程度差别是很大的。而通常的交叉熵损失函数无法反应这种情况。 在文中， 作者使用的是 Earth Mover’s Distance, 定义如下:</p>
+<p><img src="/images/nima-loss.png" alt=""></p>
+<p>其中, CDF为累积概率分布， 定义为:</p>
+<p>$$<br>CDF_p{k} = \sum_{i = 1}^{k}{p_{s_i}}<br>$$</p>
+<p>在 Keras中, 其实现如下:</p>
+<figure class="highlight python hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">from</span> keras <span class="hljs-keyword">import</span> backend <span class="hljs-keyword">as</span> K</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">earth_movers_distance</span><span class="hljs-params">(y_true, y_pred)</span>:</span></span><br><span class="line">    cdf_true = K.cumsum(y_true, axis=<span class="hljs-number">-1</span>)</span><br><span class="line">    cdf_pred = K.cumsum(y_pred, axis=<span class="hljs-number">-1</span>)</span><br><span class="line">    emd = K.sqrt(K.mean(K.square(cdf_true - cdf_pred), axis=<span class="hljs-number">-1</span>))</span><br><span class="line">    <span class="hljs-keyword">return</span> K.mean(emd)</span><br></pre></td></tr></table></figure>
+<p>在文中， 作者使用的是L2距离， 因为方便求导。</p>
+<p>作者在3个图片质量相关的数据集, AVA, TID2013和LIVE数据集上分别进行了训练和测试， 同时对比了VGG, InceptionV2和MobileNet这3个流行的网络结构。在AVA数据集上的结果数据如图:</p>
+<p><img src="/images/nima-ava-result.png" alt=""></p>
+<p>其中， LCC代表 linear correlation coefficient, SRCC代表 Spearman’s rank correlation coefficient, EMD代表Earth Mover Distance。</p>
+<p>可以看出，Inception-v2 网络的准确度已经与当前的state of the art持平，并且NIMA由于只需要进行一次前身计算， 性能远远胜出。</p>
+<p>TID2013上的结果如下:</p>
+<p><img src="/images/nima-tid2013.png" alt=""></p>
+<p>与最高水平还有一点点差距， 不过贵在简单高效。</p>
+<p>作者还给出了基于AVA数据集的模型在风景这个类别下的预测结果(平均分和方差):</p>
+<p><img src="/images/nima-pred-examples.png" alt=""></p>
+<p>可以看到， 整体上比较符合人类的感官认知。</p>
+<p>在文中， 作者也提到， 通过对色调、对比度的调整可以提高图片的美学质量分。 由此可以指导自动化的图片编辑， 比如自动增强图片， 即寻找图片的最优对比度、色调等参数， 使得其美学质量分最大化。如果这个过程本身是可微分的（例如采用的是神经网络), 那么可以通过类似Actor-Critic的模型端到端地解决。</p>
+<p>实现:</p>
+<ul>
+<li>idealo.de 公司的实现: <a href="https://github.com/idealo/image-quality-assessment" target="_blank" rel="noopener">https://github.com/idealo/image-quality-assessment</a></li>
+<li>博客文章: <a href="https://medium.com/idealo-tech-blog/using-deep-learning-to-automatically-rank-millions-of-hotel-images-c7e2d2e5cae2" target="_blank" rel="noopener">Using Deep Learning to automatically rank millions of hotel images</a> by idealo</li>
+</ul>
+
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop is-hidden-mobile article-nav-prev">
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2019/01/10/20181218-illustration2vec/">Illustration2Vec: A Semantic Vector Representation of Illustrations</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+<div class="sharebox">
+    
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="ShareThis" async="async"></script>
+
+</div>
+
+
+
+<div class="comments">
+    <h3 class="title is-4">Comments</h3>
+    
+<script>
+    var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/01/10/20190110-google-nima/';
+        this.page.identifier = '2019/01/10/20190110-google-nima/';
+        
+        this.language = 'en';
+        
+    };
+    (function() {
+        var d = document, s = d.createElement('script');  
+        s.src = '//' + 'mingleung' + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<div id="disqus_thread">
+    
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+</div>
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2019 七弦&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" title="GitHub" href="https://github.com/ppoffice/hexo-theme-minos">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+    moment.locale("default");
+</script>
+
+
+    
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+    MathJax.Hub.Config({
+        "HTML-CSS": {matchFontHeight: false},
+        SVG: {matchFontHeight: false},
+        CommonHTML: {matchFontHeight: false}
+    });
+</script>
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="Type something...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: 'Posts',
+                PAGES: 'Pages',
+                CATEGORIES: 'Categories',
+                TAGS: 'Tags',
+                UNTITLED: '(Untitled)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>
