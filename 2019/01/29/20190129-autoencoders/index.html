@@ -2,7 +2,7 @@
 <html class="has-navbar-fixed-top">
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-<title>Archives - 自己的园地</title>
+<title>AutoEncoders - 自己的园地</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
@@ -12,13 +12,22 @@
 
 
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="自己的园地">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+    <meta name="description" content="[DRAFT] AutoEncoders Autoencoders are kind of neural networks that try to reconstruct the inputs, i.e., the output is the same as the input. It can be devided into a encoder and a decoder, which is il">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AutoEncoders">
+<meta property="og:url" content="http://yoursite.com/2019/01/29/20190129-autoencoders/index.html">
 <meta property="og:site_name" content="自己的园地">
+<meta property="og:description" content="[DRAFT] AutoEncoders Autoencoders are kind of neural networks that try to reconstruct the inputs, i.e., the output is the same as the input. It can be devided into a encoder and a decoder, which is il">
 <meta property="og:locale" content="default">
+<meta property="og:image" content="http://dkopczyk.quantee.co.uk/wp-content/uploads/2018/02/encoder-decoder-768x336.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/1674024/51906774-de04cd00-23ff-11e9-87ca-389c8b873b7b.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/1674024/51906538-4a330100-23ff-11e9-8222-e80c0d08a63b.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/1674024/51906978-7bf89780-2400-11e9-992c-ed2f404de1c3.png">
+<meta property="og:updated_time" content="2019-01-29T12:08:06.163Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="自己的园地">
+<meta name="twitter:title" content="AutoEncoders">
+<meta name="twitter:description" content="[DRAFT] AutoEncoders Autoencoders are kind of neural networks that try to reconstruct the inputs, i.e., the output is the same as the input. It can be devided into a encoder and a decoder, which is il">
+<meta name="twitter:image" content="http://dkopczyk.quantee.co.uk/wp-content/uploads/2018/02/encoder-decoder-768x336.png">
 
 
 
@@ -72,7 +81,7 @@
         
         <div class="navbar-menu navbar-start">
             
-            <a class="navbar-item is-active" href="/archives">Archives</a>
+            <a class="navbar-item " href="/archives">Archives</a>
             
             <a class="navbar-item " href="/categories/LifeStyle">Lifestyle</a>
             
@@ -105,77 +114,101 @@
 
     <section class="section">
     <div class="container">
+    <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            AutoEncoders
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-01-29T12:09:00.000Z" itemprop="datePublished">Jan 29 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            2 minutes read (About 278 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>[DRAFT] AutoEncoders</p>
+<p>Autoencoders are kind of neural networks that try to reconstruct the inputs, i.e., the output is the same as the input. It can be devided into a encoder and a decoder, which is illustrated as follows:</p>
+<p><img src="http://dkopczyk.quantee.co.uk/wp-content/uploads/2018/02/encoder-decoder-768x336.png" alt="Encoder-Decoder architecture"></p>
+<p>Autoencoders can be used in image or sound compressing and dimensionality reduction. In specific cases they can provide more interesing and efficient data projections than PCA or other dimentionality reduction techniques. Also, Denoising Autoencoders can be used to denoise a noisy image, and can further be used in representation learning.</p>
+<p>The following gist shows how to construct a naive autoencoder that try to rebuild the handwritten digit in immortal Mnist dataset:</p>
+<script src="https://gist.github.com/joshualeung/2ab4b626d05b5a01e977178e6009cdc0.js"></script>
+
+<p>Running results:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906774-de04cd00-23ff-11e9-87ca-389c8b873b7b.png" alt="Autoencoders"></p>
+<p>For denoising autoencoders, the input is random noisy images and the output is corresponding clean image. The following gist should clear any confusion:</p>
+<script src="https://gist.github.com/joshualeung/d9c09ecc47df19a0e284d084b8e53d7b.js"></script>
+
+<p>Result:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906538-4a330100-23ff-11e9-8222-e80c0d08a63b.png" alt="Denoising Autoencoder"></p>
+<p>And using convolution networks for encoder and decoder should give better results. Gist is here:</p>
+<script src="https://gist.github.com/joshualeung/ddd50ad4933e4debfa9a746628396af7.js"></script>
+
+<p>Result:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906978-7bf89780-2400-11e9-992c-ed2f404de1c3.png" alt="CNN Denoising Autoencoder"></p>
+<p>Autoencoders can also be used in Representation learning, and can be used to encode inputs other than images, even categorical data. Practically the hidden feature size is larger than the input size to capture more info. A detailed explanation can be found at: <a href="http://dkopczyk.quantee.co.uk/dae-part3/" target="_blank" rel="noopener">http://dkopczyk.quantee.co.uk/dae-part3/</a></p>
+<p>References:<br>[1] <a href="http://dkopczyk.quantee.co.uk/dae-part1/" target="_blank" rel="noopener">Denoising Autoencoder by Dawid Kopczyk</a></p>
+
+    
+    </div>
     
     
-        <div class="archive content">
-            <h4 class="title is-4" id="2019">2019</h4>
-            <div class="articles">
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop is-hidden-mobile article-nav-prev">
             
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2019-01-29T12:09:00.000Z" itemprop="datePublished">
-                        Jan 29</time>
-                    <h6 class="title is-6"><a href="/2019/01/29/20190129-autoencoders/">AutoEncoders</a></h6>
-                </div>
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
             
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2019-01-21T14:09:00.000Z" itemprop="datePublished">
-                        Jan 21</time>
-                    <h6 class="title is-6"><a href="/2019/01/21/20190121-atrous-conv/">Astrous Convolution</a></h6>
-                </div>
+            <a href="/2019/01/21/20190121-atrous-conv/">Astrous Convolution</a>
             
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2019-01-20T02:09:00.000Z" itemprop="datePublished">
-                        Jan 20</time>
-                    <h6 class="title is-6"><a href="/2019/01/20/20190120-mobilenetv1/">MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2019-01-10T11:52:00.000Z" itemprop="datePublished">
-                        Jan 10</time>
-                    <h6 class="title is-6"><a href="/2019/01/10/20190110-google-nima/">NIMA: Neural Image Assessment</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2019-01-10T01:52:00.000Z" itemprop="datePublished">
-                        Jan 10</time>
-                    <h6 class="title is-6"><a href="/2019/01/10/20181218-illustration2vec/">Illustration2Vec: A Semantic Vector Representation of Illustrations</a></h6>
-                </div>
-            
-            </div>
-        </div>
+        </span>
+    </div>
     
-        <div class="archive content">
-            <h4 class="title is-4" id="2018">2018</h4>
-            <div class="articles">
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-12-14T00:22:09.000Z" itemprop="datePublished">
-                        Dec 14</time>
-                    <h6 class="title is-6"><a href="/2018/12/14/20181214-rl-policy-methods/">强化学习中的策略梯度算法</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-12-14T00:04:32.000Z" itemprop="datePublished">
-                        Dec 14</time>
-                    <h6 class="title is-6"><a href="/2018/12/14/20181214-ltr-groupwise-scoring/">Learning Groupwise Scoring Functions Using Deep Neural Networks</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-12-04T05:08:28.278Z" itemprop="datePublished">
-                        Dec 4</time>
-                    <h6 class="title is-6"><a href="/2018/12/04/20181204-numpy-notes/">Numpy笔记</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-12-01T00:05:45.158Z" itemprop="datePublished">
-                        Dec 1</time>
-                    <h6 class="title is-6"><a href="/2018/12/01/20181201-dcn/">Deep &amp; Cross Network for Ad Click Predictions</a></h6>
-                </div>
-            
-            </div>
-        </div>
+</article>
+
+
+<div class="sharebox">
     
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="ShareThis" async="async"></script>
+
+</div>
+
+
+
+<div class="comments">
+    <h3 class="title is-4">Comments</h3>
     
+<script>
+    var disqus_config = function () {
+        this.page.url = 'http://yoursite.com/2019/01/29/20190129-autoencoders/';
+        this.page.identifier = '2019/01/29/20190129-autoencoders/';
+        
+        this.language = 'en';
+        
+    };
+    (function() {
+        var d = document, s = d.createElement('script');  
+        s.src = '//' + 'mingleung' + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<div id="disqus_thread">
+    
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+</div>
+
     </div>
 </section>
     <footer class="footer">

@@ -109,6 +109,59 @@
         <article class="article content gallery" itemscope="" itemprop="blogPost">
     <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
         
+            <a href="/2019/01/29/20190129-autoencoders/" itemprop="url">AutoEncoders</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-01-29T12:09:00.000Z" itemprop="datePublished">Jan 29 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            2 minutes read (About 278 words)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>[DRAFT] AutoEncoders</p>
+<p>Autoencoders are kind of neural networks that try to reconstruct the inputs, i.e., the output is the same as the input. It can be devided into a encoder and a decoder, which is illustrated as follows:</p>
+<p><img src="http://dkopczyk.quantee.co.uk/wp-content/uploads/2018/02/encoder-decoder-768x336.png" alt="Encoder-Decoder architecture"></p>
+<p>Autoencoders can be used in image or sound compressing and dimensionality reduction. In specific cases they can provide more interesing and efficient data projections than PCA or other dimentionality reduction techniques. Also, Denoising Autoencoders can be used to denoise a noisy image, and can further be used in representation learning.</p>
+<p>The following gist shows how to construct a naive autoencoder that try to rebuild the handwritten digit in immortal Mnist dataset:</p>
+<script src="https://gist.github.com/joshualeung/2ab4b626d05b5a01e977178e6009cdc0.js"></script>
+
+<p>Running results:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906774-de04cd00-23ff-11e9-87ca-389c8b873b7b.png" alt="Autoencoders"></p>
+<p>For denoising autoencoders, the input is random noisy images and the output is corresponding clean image. The following gist should clear any confusion:</p>
+<script src="https://gist.github.com/joshualeung/d9c09ecc47df19a0e284d084b8e53d7b.js"></script>
+
+<p>Result:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906538-4a330100-23ff-11e9-8222-e80c0d08a63b.png" alt="Denoising Autoencoder"></p>
+<p>And using convolution networks for encoder and decoder should give better results. Gist is here:</p>
+<script src="https://gist.github.com/joshualeung/ddd50ad4933e4debfa9a746628396af7.js"></script>
+
+<p>Result:</p>
+<p><img src="https://user-images.githubusercontent.com/1674024/51906978-7bf89780-2400-11e9-992c-ed2f404de1c3.png" alt="CNN Denoising Autoencoder"></p>
+<p>Autoencoders can also be used in Representation learning, and can be used to encode inputs other than images, even categorical data. Practically the hidden feature size is larger than the input size to capture more info. A detailed explanation can be found at: <a href="http://dkopczyk.quantee.co.uk/dae-part3/" target="_blank" rel="noopener">http://dkopczyk.quantee.co.uk/dae-part3/</a></p>
+<p>References:<br>[1] <a href="http://dkopczyk.quantee.co.uk/dae-part1/" target="_blank" rel="noopener">Denoising Autoencoder by Dawid Kopczyk</a></p>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
             <a href="/2019/01/21/20190121-atrous-conv/" itemprop="url">Astrous Convolution</a>
         
     </h1>
