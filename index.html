@@ -86,7 +86,7 @@
         
         <div class="navbar-menu navbar-end">
             
-            <a class="navbar-item search" title="Search" href="javascript:;">
+            <a class="navbar-item search" title="Buscar" href="javascript:;">
                 <i class="fas fa-search"></i>
             </a>
             
@@ -109,6 +109,52 @@
         <article class="article content gallery" itemscope="" itemprop="blogPost">
     <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
         
+            <a href="/2019/02/22/20190222-DIN/" itemprop="url">Deep interest network for click-through rate prediction</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2019-02-22T08:30:00.000Z" itemprop="datePublished">Feb 22 2019</time>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            4 minutes de lectura (Alrededor de 604 palabras)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>在常规的基于深度学习的点击率预估模型中， 用户的兴趣通常是用固定的向量来表示的， 无法候选的商品是什么， 用户的兴趣向量都是相同的。 这并不是合理的， 对于某一个商品来说， 决定用户点还是不点， 只与用户的历史行为中的一部分有关系。 很自然地， 我们想到使用Attention的方法来对不同的历史兴趣进行软选择。这就是阿里Deep Interest Network的做法。</p>
+<p>论文的主要工作便是在用户兴趣的表征上使用了Attention机制（论文中称之为<code>local activation unit</code>）， 不过稍微有一点不一样。 在标准的Attention中， 权重是通过softmax进行了规一化的， 在DIN中取消了归一化。 不过没看到这个的效果和直接使用Attention的区别。</p>
+<p><img src="https://camo.githubusercontent.com/f7aa2ff476e75c0a7f4f53686f6f0767ce495d63/68747470733a2f2f63646e2e6e6c61726b2e636f6d2f6c61726b2f302f323031382f706e672f33363135342f313534313939343933383138362d36356637656562632d623234362d346661312d396433352d3563616439653232613038642e706e67" alt="68747470733a2f2f63646e2e6e6c61726b2e636f6d2f6c61726b2f302f323031382f706e672f33363135342f313534313939343933383138362d36356637656562632d623234362d346661312d396433352d3563616439653232613038642e706e67"></p>
+<p>论文同时提出了针对模型训练的两点改进:</p>
+<ul>
+<li>基于Mini-Batch的L2正则化。 常规的正则化下， 每次迭代都涉及到对所有参数的更新，对于亿级的稀疏特征来说， 这个代价太大了。 论文中将正则化涉及的参数限制在了仅在Mini-batch出现过的特征所影响的权重, 有效地缓解了过拟合的问题。</li>
+<li>一种新的，针对数据分布自适应的激活函数，称为Dice。</li>
+</ul>
+<p><img src="https://camo.githubusercontent.com/62d0d0d9250c16fdd71383fdf0c06642646a6105/68747470733a2f2f63646e2e6e6c61726b2e636f6d2f6c61726b2f302f323031382f706e672f363039382f313534323333393532353035302d38623033306134612d626439662d343839312d616363312d3661623032313932333635642e706e67" alt="68747470733a2f2f63646e2e6e6c61726b2e636f6d2f6c61726b2f302f323031382f706e672f363039382f313534323333393532353035302d38623033306134612d626439662d343839312d616363312d3661623032313932333635642e706e67"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://github.com/alibaba/x-deeplearning/wiki/%E6%B7%B1%E5%BA%A6%E5%85%B4%E8%B6%A3%E7%BD%91%E7%BB%9C(DIN" target="_blank" rel="noopener">深度兴趣网络(DIN) · alibaba/x-deeplearning Wiki · GitHub</a>)</li>
+<li><a href="https://deepctr.readthedocs.io/en/latest/models/DeepModels.html" target="_blank" rel="noopener">Deep Models — deepCTR 1.0.1 documentation</a></li>
+<li>论文地址: [<strong>arXiv‘2017</strong>]Zhou, Guorui, et al.<a href="https://arxiv.org/abs/1706.06978" target="_blank" rel="noopener">Deep interest network for click-through rate prediction</a>, arXiv preprint arXiv:1706.06978 (2017).</li>
+</ul>
+
+    
+    </div>
+    
+    
+</article>
+
+
+
+
+    
+        <article class="article content gallery" itemscope="" itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
             <a href="/2019/01/29/20190129-autoencoders/" itemprop="url">AutoEncoders</a>
         
     </h1>
@@ -121,7 +167,7 @@
         <span class="column is-narrow">
             
             
-            2 minutes read (About 276 words)
+            2 minutes de lectura (Alrededor de 276 palabras)
         </span>
         
     </div>
@@ -173,7 +219,7 @@
         <span class="column is-narrow">
             
             
-            2 minutes read (About 292 words)
+            2 minutes de lectura (Alrededor de 292 palabras)
         </span>
         
     </div>
@@ -213,7 +259,7 @@
         <span class="column is-narrow">
             
             
-            7 minutes read (About 1021 words)
+            7 minutes de lectura (Alrededor de 1021 palabras)
         </span>
         
     </div>
@@ -263,7 +309,7 @@
         <span class="column is-narrow">
             
             
-            8 minutes read (About 1191 words)
+            8 minutes de lectura (Alrededor de 1191 palabras)
         </span>
         
     </div>
@@ -322,7 +368,7 @@
         <span class="column is-narrow">
             
             
-            8 minutes read (About 1246 words)
+            8 minutes de lectura (Alrededor de 1246 palabras)
         </span>
         
     </div>
@@ -379,7 +425,7 @@
         <span class="column is-narrow">
             
             
-            2 minutes read (About 322 words)
+            2 minutes de lectura (Alrededor de 322 palabras)
         </span>
         
     </div>
@@ -418,7 +464,7 @@
         <span class="column is-narrow">
             
             
-            a minute read (About 189 words)
+            a minute de lectura (Alrededor de 189 palabras)
         </span>
         
     </div>
@@ -455,7 +501,7 @@
         <span class="column is-narrow">
             
             
-            2 minutes read (About 243 words)
+            2 minutes de lectura (Alrededor de 243 palabras)
         </span>
         
     </div>
@@ -491,7 +537,7 @@
         <span class="column is-narrow">
             
             
-            2 minutes read (About 311 words)
+            2 minutes de lectura (Alrededor de 311 palabras)
         </span>
         
     </div>
@@ -618,7 +664,7 @@
     <div class="searchbox-mask"></div>
     <div class="searchbox-container ins-search-container">
         <div class="searchbox-input-wrapper">
-            <input type="text" class="searchbox-input ins-search-input" placeholder="Type something...">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="Escribe algo...">
             <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
         </div>
         <div class="searchbox-result-wrapper ins-section-wrapper">
@@ -631,10 +677,10 @@
         var INSIGHT_CONFIG = {
             TRANSLATION: {
                 POSTS: 'Posts',
-                PAGES: 'Pages',
-                CATEGORIES: 'Categories',
+                PAGES: 'Páginas',
+                CATEGORIES: 'Categorías',
                 TAGS: 'Tags',
-                UNTITLED: '(Untitled)',
+                UNTITLED: '(Sin título)',
             },
             CONTENT_URL: '/content.json',
         };
