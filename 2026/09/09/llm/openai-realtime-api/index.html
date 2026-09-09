@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+
+    
+<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
+    
+
+<meta charset="utf-8" >
+
+<title>OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入</title>
+<meta name="keywords" content="OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入, 击壤而歌">
+<meta name="description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入">
+<meta property="og:description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
+
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="stylesheet" href="/style/main.css">
+
+  <!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
+  <body>
+    <div id="app" class="main">
+
+<div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="http://orrrrz.github.io">
+        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
+      </a>
+      <a href="http://orrrrz.github.io">
+        <h1 class="site-title">击壤而歌</h1>
+      </a>
+    </div>
+    <div class="right">
+        <i class="icon menu-switch icon-menu-outline" ></i>
+    </div>
+  </div>
+</div>
+
+<div class="menu-container" style="height: 0;opacity: 0;">
+<nav class="menu-list">
+  
+    
+      <a href="/" class="menu purple-link">
+        首页
+      </a>
+    
+  
+    
+      <a href="/tags" class="menu purple-link">
+        标签
+      </a>
+    
+  
+    
+      <a href="/archives" class="menu purple-link">
+        归档
+      </a>
+    
+  
+    
+      <a href="/about" class="menu purple-link">
+        关于
+      </a>
+    
+  
+</nav>
+</div>
+
+
+
+  <div class="content-container">
+    <div class="post-detail">
+      
+      <h2 class="post-title">OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入</h2>
+      <div class="post-info post-detail-info">
+        <span><i class="icon icon-calendar-outline"></i> 2026-09-09</span>
+        
+          <span>
+          <i class="icon icon-pricetags-outline"></i>
+            
+              <a href="/tags/LLM/">
+              LLM
+                
+                  ，
+                
+              </a>
+            
+              <a href="/tags/OpenAI/">
+              OpenAI
+                
+                  ，
+                
+              </a>
+            
+              <a href="/tags/%E8%AF%AD%E9%9F%B3%E4%BA%A4%E4%BA%92/">
+              语音交互
+                
+                  ，
+                
+              </a>
+            
+              <a href="/tags/Realtime-API/">
+              Realtime API
+                
+              </a>
+            
+          </span>
+        
+      </div>
+      <div class="post-content-wrapper">
+        <div class="post-content">
+          <p>OpenAI 面向开发者的端到端语音对话入口是 <strong>Realtime API</strong>：应用建立持续连接，向模型传入声音，再接收模型生成的声音与控制事件。它适合能够接话、被打断、查询信息并执行工具的语音助手。</p>
+<p>截至 <strong>2026 年 9 月 9 日</strong>，官方语音开发指南采用 <code>gpt-realtime-2.1</code> 作为对话示例模型。本文依据这一版本的文档介绍接口，附带 WebRTC 示例；模型价格和可用性以实际接入时的官方页面及项目权限为准。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime">Realtime 概览</a></p>
+<span id="more"></span>
+
+<h2 id="端到端语音对话的含义"><a href="#端到端语音对话的含义" class="headerlink" title="端到端语音对话的含义"></a>端到端语音对话的含义</h2><h3 id="从串联系统到原生音频输入输出"><a href="#从串联系统到原生音频输入输出" class="headerlink" title="从串联系统到原生音频输入输出"></a>从串联系统到原生音频输入输出</h3><p>传统语音助手通常包含三个主要阶段：自动语音识别（ASR）把声音转换为文字，大语言模型（LLM）生成回答文字，语音合成（TTS）再将文字转换为声音。三个阶段可以分别流式运行，但应用需要协调识别结果、回答生成和音频播放。</p>
+<p>原生语音路线由同一个对话模型直接处理音频输入和音频输出，应用不必先取得完整转写再提交给文字模型。OpenAI 将这一路线用于自然、低延迟的交谈；需要检查中间文字、复用既有文字助手的系统，则仍可采用串联架构。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/voice-agents">语音架构说明</a></p>
+<p>从信息传递的角度看，音频包含语调、节奏和停顿，直接输入音频使模型有机会利用普通文字转写没有呈现的线索。这是架构上的解释，不能据此推导模型能够准确判断说话者的真实情绪。</p>
+<p><a class="simple-lightbox" href="/assets/llm/openai-realtime-architecture.svg"><img   src="/images/loading.svg" data-src="/assets/llm/openai-realtime-architecture.svg"  alt="串联语音架构与 Realtime 原生语音架构对比，以及浏览器、应用服务器和 OpenAI 之间的数据流" lazyload></a></p>
+<p>“端到端”描述的是模型的输入输出路径。声音仍然需要采集、编码、传输和播放，系统仍然需要认证与业务逻辑。公开 API 文档不足以确定模型内部的音频编码器、离散音频表示、网络层数或训练配方，也不能据此断言其内部完全不使用文字表示。</p>
+<p>一个直接证据是：Realtime 会话的<strong>输入转写默认关闭</strong>。启用转写后，它由独立服务异步产生；官方明确提示，转写只能辅助理解输入，不能当作模型实际听到内容的精确记录。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">输入转写契约</a></p>
+<h3 id="延迟来自整个交互链路"><a href="#延迟来自整个交互链路" class="headerlink" title="延迟来自整个交互链路"></a>延迟来自整个交互链路</h3><p>持续上传音频，使服务端能够在用户讲话期间接收输入；分段返回回答，使播放器无需等待整段语音生成完毕。一次接话的等待时间，可以用下面的工程模型分析：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">从用户说完到听见回复的时间</span><br><span class="line">≈ 判断本轮结束的时间</span><br><span class="line"> + 剩余网络传输与服务排队时间</span><br><span class="line"> + 模型生成首段音频的时间</span><br><span class="line"> + 播放缓冲时间</span><br></pre></td></tr></table></figure>
+
+<p>这些阶段可能重叠，公式用于定位问题，不是服务端内部执行时序。端到端架构减少了应用必须协调的中间阶段，但真实延迟仍受网络、轮次判断、模型配置和设备播放影响。本文没有进行真实通话测速，也不将产品演示中的延迟视为 API 保证。</p>
+<h2 id="模型与接口的能力范围"><a href="#模型与接口的能力范围" class="headerlink" title="模型与接口的能力范围"></a>模型与接口的能力范围</h2><h3 id="对话模型与专项音频接口"><a href="#对话模型与专项音频接口" class="headerlink" title="对话模型与专项音频接口"></a>对话模型与专项音频接口</h3><p>“支持音频”并不意味着接口具有相同的交互方式：</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>对应入口</th>
+<th>返回行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实时语音助手</td>
+<td>Realtime 对话会话</td>
+<td>生成回答、维护会话并调用工具</td>
+</tr>
+<tr>
+<td>实时字幕</td>
+<td>实时转写接口</td>
+<td>随输入输出文字，不负责对话回答</td>
+</tr>
+<tr>
+<td>持续口译</td>
+<td>实时翻译接口</td>
+<td>随源语音输出译文和翻译音频</td>
+</tr>
+<tr>
+<td>朗读给定文本</td>
+<td>Speech 接口</td>
+<td>将应用提供的文字合成为声音</td>
+</tr>
+<tr>
+<td>在既有请求中加入音频</td>
+<td>支持音频的 Chat Completions 模型</td>
+<td>按请求处理音频输入输出</td>
+</tr>
+</tbody></table>
+<p>这些是不同的模型与会话路径。例如，<code>gpt-live-transcribe</code> 面向实时转写，<code>gpt-realtime-translate</code> 面向持续翻译，不能直接替换对话示例里的模型名称。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime">接口选择说明</a></p>
+<h3 id="当前对话模型"><a href="#当前对话模型" class="headerlink" title="当前对话模型"></a>当前对话模型</h3><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>GPT-Realtime-2.1</th>
+<th>GPT-Realtime-2.1 Mini</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型标识</td>
+<td><code>gpt-realtime-2.1</code></td>
+<td><code>gpt-realtime-2.1-mini</code></td>
+</tr>
+<tr>
+<td>输入</td>
+<td>音频、文字、图片</td>
+<td>音频、文字、图片</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>音频或文字</td>
+<td>音频或文字</td>
+</tr>
+<tr>
+<td>上下文窗口</td>
+<td>128,000 token</td>
+<td>128,000 token</td>
+</tr>
+<tr>
+<td>模型页标注的最大输出</td>
+<td>32,000 token</td>
+<td>32,000 token</td>
+</tr>
+<tr>
+<td>推理能力</td>
+<td>可配置推理强度</td>
+<td>蒸馏推理模型</td>
+</tr>
+<tr>
+<td>官方定位</td>
+<td>改进字母数字识别、噪声处理和打断行为</td>
+<td>更快、成本更低的实时交互</td>
+</tr>
+</tbody></table>
+<p>以上数值来自两者的模型页，不能套用旧版 <code>gpt-realtime</code> 的 32,000 上下文上限。两个模型都列出函数调用支持；视频输入、严格结构化输出与微调不在其当前支持范围内。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-realtime-2.1">2.1 模型说明</a>、<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini">Mini 模型说明</a></p>
+<p>图片输入适合补充截图或相机抓拍。例如，用户说“这个按钮有什么作用”，应用可以把对应截图加入会话；它不会因此自动获得持续视频或设备屏幕权限。</p>
+<h3 id="语音表现与推理配置"><a href="#语音表现与推理配置" class="headerlink" title="语音表现与推理配置"></a>语音表现与推理配置</h3><p>会话指令可以约束回答语言、长短和表达方式，例如“使用中文，每次回答两三句话，听不清时简短追问”。推理模型还可使用 <code>reasoning.effort</code> 调整计算投入。提高推理强度可能增加等待时间，应按任务成功率和延迟共同选择。</p>
+<p>较长的查询过程中，可以要求模型先说一句具体进度，例如“正在查询这笔订单”。这类简短播报只用于说明正在执行的动作，不等于任务已经成功，也不是模型内部推理过程。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-models-prompting">实时模型提示指南</a></p>
+<h2 id="一轮语音对话的执行过程"><a href="#一轮语音对话的执行过程" class="headerlink" title="一轮语音对话的执行过程"></a>一轮语音对话的执行过程</h2><h3 id="会话、历史与回答"><a href="#会话、历史与回答" class="headerlink" title="会话、历史与回答"></a>会话、历史与回答</h3><p>Realtime 使用有状态的事件协议。<code>Session</code> 保存模型和音频配置，<code>Conversation</code> 保存本次会话的输入输出条目，<code>Response</code> 表示一次回答生成。连接建立后，服务端发出 <code>session.created</code>；应用可以用 <code>session.update</code> 调整配置。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-conversations">会话对象说明</a></p>
+<p>开启自动轮次检测后，典型流程如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">持续输入音频</span><br><span class="line">  → 检测用户开始讲话</span><br><span class="line">  → 判断本轮结束并提交输入</span><br><span class="line">  → 创建回答</span><br><span class="line">  → 分段返回语音、字幕或工具调用</span><br><span class="line">  → 回答结束，结果进入会话历史</span><br></pre></td></tr></table></figure>
+
+<p>这里是逻辑顺序。实际系统中音频播放、辅助转写和工具执行可以重叠，应用不能假设所有事件都按一个固定列表紧邻到达。</p>
+<h3 id="判断用户是否说完"><a href="#判断用户是否说完" class="headerlink" title="判断用户是否说完"></a>判断用户是否说完</h3><p>VAD 是语音活动检测，例如识别此刻是否有人讲话。Realtime 提供两种轮次检测方式：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>判断依据</th>
+<th>配置与取舍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>server_vad</code></td>
+<td>声音活动及持续静默</td>
+<td>用 <code>threshold</code> 调整触发阈值，<code>silence_duration_ms</code> 调整等待静默的时长</td>
+</tr>
+<tr>
+<td><code>semantic_vad</code></td>
+<td>结合表达内容估计话语是否结束</td>
+<td>用 <code>eagerness</code> 调整接话积极程度</td>
+</tr>
+</tbody></table>
+<p>例如，“帮我订明天去……嗯……杭州的票”中的停顿，不一定意味着说完。缩短静默等待通常让接话更快，也更容易提前截断句子；语义检测可以为未完成的表达等待更久。</p>
+<p><code>create_response</code> 控制检测到轮次结束后是否自动回答，<code>interrupt_response</code> 控制用户开口时是否取消当前回答。两者都设为 <code>false</code> 时，应用仍可接收 VAD 事件，再自行发送 <code>response.create</code>。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-vad">VAD 配置说明</a></p>
+<h3 id="用户插话后的音频与历史同步"><a href="#用户插话后的音频与历史同步" class="headerlink" title="用户插话后的音频与历史同步"></a>用户插话后的音频与历史同步</h3><p>假设模型已经生成十秒回答，用户只听了前三秒就开始插话。系统需要同时处理：停止当前生成、清除未播放音频、让后续上下文反映实际播出的范围。</p>
+<p>使用 WebRTC 或 SIP 时，服务端管理输出音频缓冲，并在自动打断时截断未播放部分。使用 WebSocket 时，应用管理播放器，需要停止播放并发送 <code>conversation.item.truncate</code>，其中 <code>audio_end_ms</code> 应来自<strong>已播放时长</strong>，而非已收到的音频长度。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-conversations#interruption-and-truncation">打断与截断说明</a></p>
+<p>这也意味着：语音能够被打断，不代表后台业务已经取消。例如，用户打断一段订单说明时，是否还要取消订单查询，应由应用根据后续意图单独决定。</p>
+<h3 id="事件完成与业务成功的区别"><a href="#事件完成与业务成功的区别" class="headerlink" title="事件完成与业务成功的区别"></a>事件完成与业务成功的区别</h3><p><code>response.done</code> 表示本次回答生成结束，状态可能是 <code>completed</code>、<code>cancelled</code>、<code>failed</code> 或 <code>incomplete</code>。它不表示音频已全部播完，也不自动证明业务动作成功。</p>
+<p>同样，<code>response.function_call_arguments.done</code> 在中断或取消时也可能出现。工具处理代码需要检查回答状态、参数完整性和当前任务是否仍然有效，再决定执行。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/server-events">服务端事件契约</a></p>
+<h2 id="三种连接方式"><a href="#三种连接方式" class="headerlink" title="三种连接方式"></a>三种连接方式</h2><table>
+<thead>
+<tr>
+<th>连接方式</th>
+<th>适用位置</th>
+<th>应用需要处理的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WebRTC</td>
+<td>浏览器、移动客户端</td>
+<td>麦克风授权、连接协商、控制事件及界面状态</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>应用服务器、自定义音频处理服务</td>
+<td>音频格式、Base64 分块、播放缓冲与打断同步</td>
+</tr>
+<tr>
+<td>SIP</td>
+<td>电话与呼叫中心</td>
+<td>SIP 路由、来电 webhook、接听和通话控制</td>
+</tr>
+</tbody></table>
+<p>官方建议浏览器和移动客户端优先采用 WebRTC。音频走媒体轨道，JSON 控制事件走数据通道；应用服务器可以仅参与初始连接协商。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-webrtc">WebRTC 接入说明</a></p>
+<p>服务端 WebSocket 连接使用 <code>wss://api.openai.com/v1/realtime?model=gpt-realtime-2.1</code>。音频通过 <code>input_audio_buffer.append</code> 上传，输出音频从 <code>response.output_audio.delta</code> 接收；关闭 VAD 后，还需由应用提交输入并请求回答。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-websocket">WebSocket 接入说明</a></p>
+<p>SIP 允许将电话接入同类会话。应用接收来电事件并调用接听接口，再通过服务端连接管理会话；电话号码、运营商线路和电话网络费用仍属于电话系统的部署范围。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-sip">SIP 接入说明</a></p>
+<h2 id="WebRTC-最小接入示例"><a href="#WebRTC-最小接入示例" class="headerlink" title="WebRTC 最小接入示例"></a>WebRTC 最小接入示例</h2><h3 id="运行准备"><a href="#运行准备" class="headerlink" title="运行准备"></a>运行准备</h3><p>本文示例使用浏览器原生 WebRTC 和 Node.js 内置 HTTP 服务，不依赖第三方包。完整文件可从这里下载：<a href="/downloads/openai-realtime-webrtc-demo.zip">WebRTC 示例压缩包</a>。解压后，在示例目录执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 Node.js 22 或更新版本</span></span><br><span class="line"><span class="built_in">export</span> OPENAI_API_KEY=<span class="string">&#x27;替换为自己的 API Key&#x27;</span></span><br><span class="line">node server.mjs</span><br></pre></td></tr></table></figure>
+
+<p>浏览器打开 <code>http://localhost:3000</code>，点击“开始对话”并允许使用麦克风。模型在用户说完后回答，页面展示助手字幕；“结束对话”关闭连接并停止麦克风。可选环境变量 <code>OPENAI_REALTIME_MODEL</code> 用于切换有权限使用的模型。</p>
+<p>需要具有对应模型权限和可用 API 额度的 OpenAI 项目，以及可访问 API 的网络。实际通话产生 API 费用。示例用于本机学习；部署为公共服务时，还需加入用户认证、请求限流与用量控制。GitHub Pages 只托管文章和下载文件，不能运行示例里的 Node.js 服务。</p>
+<h3 id="服务端建立会话"><a href="#服务端建立会话" class="headerlink" title="服务端建立会话"></a>服务端建立会话</h3><p>示例采用官方的统一连接接口。浏览器先生成 SDP，即描述媒体连接参数的文本；服务端把 SDP 与以下配置一起提交到 <code>/v1/realtime/calls</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sessionConfig = &#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&quot;realtime&quot;</span>,</span><br><span class="line">  <span class="attr">model</span>: process.<span class="property">env</span>.<span class="property">OPENAI_REALTIME_MODEL</span> || <span class="string">&quot;gpt-realtime-2.1&quot;</span>,</span><br><span class="line">  <span class="attr">output_modalities</span>: [<span class="string">&quot;audio&quot;</span>],</span><br><span class="line">  <span class="attr">reasoning</span>: &#123; <span class="attr">effort</span>: <span class="string">&quot;low&quot;</span> &#125;,</span><br><span class="line">  <span class="attr">instructions</span>: <span class="string">&quot;你是中文语音助手。回答简短自然；听不清时请用户重复。&quot;</span>,</span><br><span class="line">  <span class="attr">audio</span>: &#123;</span><br><span class="line">    <span class="attr">input</span>: &#123;</span><br><span class="line">      <span class="attr">turn_detection</span>: &#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;semantic_vad&quot;</span>,</span><br><span class="line">        <span class="attr">eagerness</span>: <span class="string">&quot;medium&quot;</span>,</span><br><span class="line">        <span class="attr">create_response</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">interrupt_response</span>: <span class="literal">true</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">output</span>: &#123; <span class="attr">voice</span>: <span class="string">&quot;marin&quot;</span> &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>服务端用 <code>FormData</code> 提交名为 <code>sdp</code> 和 <code>session</code> 的两个字段，长期 API Key 只保留在服务端。请求成功后，把返回的 SDP answer 交给浏览器，完成媒体连接协商。完整示例还处理了请求失败、超时和响应状态。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-webrtc#connecting-using-the-unified-interface">统一连接接口说明</a></p>
+<p>这里 <code>output_modalities: [&quot;audio&quot;]</code> 已包含音频对应的转录文本；当前接口不允许同时请求 <code>[&quot;text&quot;, &quot;audio&quot;]</code>。这份输出字幕与前面提到的可选输入转写是两件事。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">会话配置参考</a></p>
+<h3 id="浏览器传输音频与处理事件"><a href="#浏览器传输音频与处理事件" class="headerlink" title="浏览器传输音频与处理事件"></a>浏览器传输音频与处理事件</h3><p>浏览器端的关键连接逻辑如下，完整的按钮状态、失败清理和字幕处理见下载文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> peer = <span class="keyword">new</span> <span class="title class_">RTCPeerConnection</span>();</span><br><span class="line"><span class="keyword">const</span> stream = <span class="keyword">await</span> navigator.<span class="property">mediaDevices</span>.<span class="title function_">getUserMedia</span>(&#123; <span class="attr">audio</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">stream.<span class="title function_">getTracks</span>().<span class="title function_">forEach</span>(<span class="function"><span class="params">track</span> =&gt;</span> peer.<span class="title function_">addTrack</span>(track, stream));</span><br><span class="line">peer.<span class="property">ontrack</span> = <span class="function"><span class="params">event</span> =&gt;</span> &#123; audio.<span class="property">srcObject</span> = event.<span class="property">streams</span>[<span class="number">0</span>]; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> events = peer.<span class="title function_">createDataChannel</span>(<span class="string">&quot;oai-events&quot;</span>);</span><br><span class="line">events.<span class="property">onmessage</span> = <span class="function"><span class="params">event</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> message = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(event.<span class="property">data</span>);</span><br><span class="line">  <span class="keyword">if</span> (message.<span class="property">type</span> === <span class="string">&quot;response.output_audio_transcript.delta&quot;</span>) &#123;</span><br><span class="line">    <span class="comment">// 将 message.delta 追加到对应回答的字幕区域</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> offer = <span class="keyword">await</span> peer.<span class="title function_">createOffer</span>();</span><br><span class="line"><span class="keyword">await</span> peer.<span class="title function_">setLocalDescription</span>(offer);</span><br><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&quot;/session&quot;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123; <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/sdp&quot;</span> &#125;,</span><br><span class="line">  <span class="attr">body</span>: offer.<span class="property">sdp</span>,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">if</span> (!response.<span class="property">ok</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`会话创建失败：<span class="subst">$&#123;response.status&#125;</span>`</span>);</span><br><span class="line"><span class="keyword">await</span> peer.<span class="title function_">setRemoteDescription</span>(&#123; <span class="attr">type</span>: <span class="string">&quot;answer&quot;</span>, <span class="attr">sdp</span>: <span class="keyword">await</span> response.<span class="title function_">text</span>() &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>WebRTC 音频由媒体轨道传输，这段代码不需要自行接收并拼接 Base64 音频。若浏览器阻止自动播放，可使用示例中的音频控件手动播放；离开 localhost 部署时，页面需要 HTTPS 和对应的麦克风权限。</p>
+<h3 id="临时凭证与-Agents-SDK"><a href="#临时凭证与-Agents-SDK" class="headerlink" title="临时凭证与 Agents SDK"></a>临时凭证与 Agents SDK</h3><p>另一种方式是：服务端调用 <code>/v1/realtime/client_secrets</code> 创建短期凭证，前端用它直接建立连接。凭证创建接口返回 <code>value</code> 和到期信息；到期时间约束的是创建新会话的能力，已经建立的会话可以继续运行。临时凭证仍属于访问凭证，应限制发放对象与频率。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">临时凭证参考</a></p>
+<p>需要更高层会话管理时，官方 JavaScript Agents SDK 提供 <code>RealtimeAgent</code> 和 <code>RealtimeSession</code>。例如，安装 <code>@openai/agents</code> 后，可在浏览器构建项目中使用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">RealtimeAgent</span>, <span class="title class_">RealtimeSession</span> &#125; <span class="keyword">from</span> <span class="string">&quot;@openai/agents/realtime&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> assistant = <span class="keyword">new</span> <span class="title class_">RealtimeAgent</span>(&#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;中文助手&quot;</span>,</span><br><span class="line">  <span class="attr">instructions</span>: <span class="string">&quot;用中文简短回答，听不清时先追问。&quot;</span>,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">const</span> conversation = <span class="keyword">new</span> <span class="title class_">RealtimeSession</span>(assistant, &#123;</span><br><span class="line">  <span class="attr">model</span>: <span class="string">&quot;gpt-realtime-2.1&quot;</span>,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">await</span> conversation.<span class="title function_">connect</span>(&#123; <span class="attr">apiKey</span>: ephemeralKeyFromYourServer &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>ephemeralKeyFromYourServer</code> 必须来自应用自己的服务端。SDK 减少了音频会话管理代码，账户认证、业务授权和持久化仍需由应用实现。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/voice-agents#build-a-speech-to-speech-voice-agent">Agents SDK 语音入口</a></p>
+<h2 id="工具调用与业务系统集成"><a href="#工具调用与业务系统集成" class="headerlink" title="工具调用与业务系统集成"></a>工具调用与业务系统集成</h2><h3 id="函数调用的执行边界"><a href="#函数调用的执行边界" class="headerlink" title="函数调用的执行边界"></a>函数调用的执行边界</h3><p>语音助手要回答“我的订单到哪里了”，可以使用应用定义的 <code>lookup_order</code> 函数。模型生成函数名与参数，应用查询订单系统，再将结果作为 <code>function_call_output</code> 写回会话，并在需要继续回答时发送 <code>response.create</code>。</p>
+<p>工具执行代码必须验证订单属于当前用户，检查参数，并区分“查询失败”和“订单不存在”。这些规则由服务端执行，提示词只用于说明模型应该如何选择工具和组织回答。</p>
+<p>Realtime 还支持 MCP，即通过标准协议访问远端工具服务。使用普通函数工具时，执行动作的是应用；使用远端 MCP 工具时，Realtime API 负责连接工具服务，应用配置访问权限，并按需要处理批准请求。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-mcp">Realtime 工具说明</a></p>
+<h3 id="服务端控制连接"><a href="#服务端控制连接" class="headerlink" title="服务端控制连接"></a>服务端控制连接</h3><p>浏览器可以直接收发音频，应用服务器同时通过旁路控制连接加入同一个会话。WebRTC 建连响应的 <code>Location</code> 包含 <code>call_id</code>，服务器可据此连接：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wss://api.openai.com/v1/realtime?call_id=rtc_xxxxx</span><br></pre></td></tr></table></figure>
+
+<p>这条连接用于监听事件、更新指令和处理工具，使数据库凭证与业务代码保留在服务端。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-server-controls">服务端控制说明</a></p>
+<p>对较长任务，一种应用设计是让工具先返回任务标识，后台持续执行，语音助手根据真实进度继续回答。应用需要管理超时、重复调用和取消请求，避免把“停止播报”误当作“取消任务”。这是可采用的工程设计，本文下载示例仅实现语音连接，没有实现后台任务系统。</p>
+<h2 id="使用限制与工程取舍"><a href="#使用限制与工程取舍" class="headerlink" title="使用限制与工程取舍"></a>使用限制与工程取舍</h2><h3 id="会话时长与上下文不是永久记忆"><a href="#会话时长与上下文不是永久记忆" class="headerlink" title="会话时长与上下文不是永久记忆"></a>会话时长与上下文不是永久记忆</h3><p>官方会话指南当前规定单次 Realtime 会话最长 <strong>60 分钟</strong>。长期运行的设备需要重新建连，并由应用恢复必要的对话摘要与业务状态。</p>
+<p>上下文达到输入上限后，默认机制会丢弃较早条目；关闭截断会使超限请求报错。128,000 token 是整体上下文窗口，不等于全部可用于历史输入，输出也需要预留空间。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-conversations">会话时长说明</a>、<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-costs#truncation">上下文截断说明</a></p>
+<p>文档还存在一个需要区分的层次：2.1 模型页标注最大输出 32,000 token，而通用会话参考对 <code>max_output_tokens</code> 的显式整数仍写为 1–4096，另可使用 <code>&quot;inf&quot;</code> 表示模型可用上限。因此，不能直接把 <code>32768</code> 或 <code>32000</code> 当作该字段的已验证合法参数；应按当前接口契约配置并确认返回状态。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-realtime-2.1">模型上限</a>、<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">参数契约</a></p>
+<h3 id="音频格式、音色与字幕"><a href="#音频格式、音色与字幕" class="headerlink" title="音频格式、音色与字幕"></a>音频格式、音色与字幕</h3><p>通过 WebSocket 发送裸音频时，当前支持的格式包括 24 kHz PCM、G.711 μ-law 和 A-law。不能把任意 MP3、WebM 文件字节标为 PCM 上传；WebRTC 示例由媒体协商处理音频传输。</p>
+<p>内置音色包括 <code>marin</code>、<code>cedar</code> 等；模型在会话中首次输出音频后，不能再更换音色。自定义音色也有资格与授权录音要求，不是上传任意声音即可使用。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">音频配置</a>、<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/text-to-speech#custom-voices">自定义音色说明</a></p>
+<p>输入转写与回答生成异步进行，字幕到达时间不能作为可靠的轮次边界。发生打断后，字幕也不应被当作逐字对齐的播放记录。本文示例会为被取消的回答添加提示，但不尝试推算用户具体听到了哪一个字。</p>
+<h3 id="识别准确性与设备声学条件"><a href="#识别准确性与设备声学条件" class="headerlink" title="识别准确性与设备声学条件"></a>识别准确性与设备声学条件</h3><p>噪声、远场拾音、口音和多人重叠讲话，都应进入实际设备测试。模型能完成中文对话，不代表它对每个方言、专有名词或中英混读场景具有相同准确率。</p>
+<p>针对地址、邮箱和订单号，应要求逐项复述或借助屏幕确认；对含糊输入，应追问而非猜测。2.1 的字母数字识别改进不能替代业务校验。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-models-prompting">实体识别与模糊输入指导</a></p>
+<p>外放设备还需要考虑回声消除，避免模型声音再次进入麦克风并触发打断。下载示例请求浏览器的回声消除与降噪能力，实际效果仍取决于浏览器和硬件。</p>
+<h3 id="权限、数据与服务可用性"><a href="#权限、数据与服务可用性" class="headerlink" title="权限、数据与服务可用性"></a>权限、数据与服务可用性</h3><p>长期 API Key 不能放入浏览器或公开固件。原生语音也不提供严格结构化输出保证，涉及业务动作的参数必须在服务端校验。请求速率与 token 吞吐量随模型、账户等级及项目配置而变，不能把创建会话的 RPM 直接理解为可同时支持的通话人数。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-realtime-2.1">模型能力与限额</a></p>
+<p>OpenAI 文档说明，API 数据默认不用于训练，除非客户主动选择共享；默认滥用监控日志可能保留最多 30 天。零数据保留需要满足资格并启用相应控制，不能由“数据不用于训练”推导为“数据从不保留”。应用自己的录音、日志和第三方工具数据还需要单独管理。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/your-data">数据控制说明</a></p>
+<h2 id="成本估算与验证方法"><a href="#成本估算与验证方法" class="headerlink" title="成本估算与验证方法"></a>成本估算与验证方法</h2><h3 id="当前价格"><a href="#当前价格" class="headerlink" title="当前价格"></a>当前价格</h3><p>下表为调研日官方公布的美元价格，单位均为<strong>每百万 token</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th align="right">音频输入</th>
+<th align="right">缓存音频输入</th>
+<th align="right">音频输出</th>
+<th align="right">文字输入</th>
+<th align="right">缓存文字输入</th>
+<th align="right">文字输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gpt-realtime-2.1</code></td>
+<td align="right">32</td>
+<td align="right">0.40</td>
+<td align="right">64</td>
+<td align="right">4</td>
+<td align="right">0.40</td>
+<td align="right">24</td>
+</tr>
+<tr>
+<td><code>gpt-realtime-2.1-mini</code></td>
+<td align="right">10</td>
+<td align="right">0.30</td>
+<td align="right">20</td>
+<td align="right">0.60</td>
+<td align="right">0.06</td>
+<td align="right">2.40</td>
+</tr>
+</tbody></table>
+<p>图片输入另外计费：2.1 为 5 美元，缓存输入 0.50 美元；Mini 为 0.80 美元，缓存输入 0.08 美元，同样以百万 token 为单位。专项翻译或转写接口的计费口径可能不同，应查看对应模型价格。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/pricing">官方价格表</a></p>
+<h3 id="从音频时长到增量成本"><a href="#从音频时长到增量成本" class="headerlink" title="从音频时长到增量成本"></a>从音频时长到增量成本</h3><p>官方成本指南给出的近似换算是：用户音频每 100 毫秒一个 token，助手音频每 50 毫秒一个 token。因此，新增一分钟用户语音约为 600 token，生成一分钟助手语音约为 1,200 token。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-costs#per-response-costs">音频 token 计费说明</a></p>
+<p>据此计算两种模型处理“一分钟新增用户语音，加一分钟新生成助手语音”的音频成本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GPT-Realtime-2.1</span><br><span class="line">600 × 32 / 1,000,000 + 1,200 × 64 / 1,000,000 = $0.096</span><br><span class="line"></span><br><span class="line">GPT-Realtime-2.1 Mini</span><br><span class="line">600 × 10 / 1,000,000 + 1,200 × 20 / 1,000,000 = $0.030</span><br></pre></td></tr></table></figure>
+
+<p>这是根据公布费率计算的<strong>新增音频部分</strong>，不是每分钟通话包价。完整账单还会受到历史上下文再次作为输入、缓存命中、文字与推理输出、图片及可选输入转写等因素影响。连接保持空闲本身当前不收费；VAD 通常过滤空白音频，但手动把空白音频提交为会话输入则需另行考虑。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-costs">成本组成说明</a></p>
+<h3 id="以实际会话记录验证方案"><a href="#以实际会话记录验证方案" class="headerlink" title="以实际会话记录验证方案"></a>以实际会话记录验证方案</h3><p>应用应记录 <code>response.done</code> 中的 <code>usage</code>，结合 API 用量记录统计成本。要评价用户体验，可以使用同一组设备和任务，记录下列指标：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>具体测量对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接话延迟</td>
+<td>用户真实说完到设备播放首段回复的时间，统计 P50、P95</td>
+</tr>
+<tr>
+<td>打断延迟</td>
+<td>用户开始插话到扬声器停止旧回答的时间</td>
+</tr>
+<tr>
+<td>轮次判断</td>
+<td>思考停顿被截断、说完后长时间不接话的比例</td>
+</tr>
+<tr>
+<td>信息准确率</td>
+<td>邮箱、地址、订单号等关键字段的正确率</td>
+</tr>
+<tr>
+<td>任务完成率</td>
+<td>工具调用是否执行成功，用户请求是否真正完成</td>
+</tr>
+<tr>
+<td>会话成本</td>
+<td>达成同一任务所产生的总费用</td>
+</tr>
+</tbody></table>
+<p>上述指标是应用侧的评估建议，不是 OpenAI 公布的服务承诺。只有在真实网络、拾音设备与业务工具上测量，才能判断 mini 模型是否足够，以及需要怎样调整轮次检测和推理强度。</p>
+<p>本文示例按官方接口完成配置核对，并进行本地语法、页面构建及模拟上游的 HTTP 流程验证；未使用真实 API Key 发起通话。真实音频质量、延迟和账户可用性需要读者在自己的环境中验证。</p>
+
+        </div>
+          
+        <div class="top-div">
+          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E5%90%AB%E4%B9%89"><span class="top-box-text">端到端语音对话的含义</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%8E%E4%B8%B2%E8%81%94%E7%B3%BB%E7%BB%9F%E5%88%B0%E5%8E%9F%E7%94%9F%E9%9F%B3%E9%A2%91%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="top-box-text">从串联系统到原生音频输入输出</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BB%B6%E8%BF%9F%E6%9D%A5%E8%87%AA%E6%95%B4%E4%B8%AA%E4%BA%A4%E4%BA%92%E9%93%BE%E8%B7%AF"><span class="top-box-text">延迟来自整个交互链路</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E8%83%BD%E5%8A%9B%E8%8C%83%E5%9B%B4"><span class="top-box-text">模型与接口的能力范围</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E4%B8%93%E9%A1%B9%E9%9F%B3%E9%A2%91%E6%8E%A5%E5%8F%A3"><span class="top-box-text">对话模型与专项音频接口</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BD%93%E5%89%8D%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B"><span class="top-box-text">当前对话模型</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%AF%AD%E9%9F%B3%E8%A1%A8%E7%8E%B0%E4%B8%8E%E6%8E%A8%E7%90%86%E9%85%8D%E7%BD%AE"><span class="top-box-text">语音表现与推理配置</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%B8%80%E8%BD%AE%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="top-box-text">一轮语音对话的执行过程</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BC%9A%E8%AF%9D%E3%80%81%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%9B%9E%E7%AD%94"><span class="top-box-text">会话、历史与回答</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E8%AF%B4%E5%AE%8C"><span class="top-box-text">判断用户是否说完</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E7%94%A8%E6%88%B7%E6%8F%92%E8%AF%9D%E5%90%8E%E7%9A%84%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%8E%86%E5%8F%B2%E5%90%8C%E6%AD%A5"><span class="top-box-text">用户插话后的音频与历史同步</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BA%8B%E4%BB%B6%E5%AE%8C%E6%88%90%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%88%90%E5%8A%9F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="top-box-text">事件完成与业务成功的区别</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%B8%89%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F"><span class="top-box-text">三种连接方式</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#WebRTC-%E6%9C%80%E5%B0%8F%E6%8E%A5%E5%85%A5%E7%A4%BA%E4%BE%8B"><span class="top-box-text">WebRTC 最小接入示例</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%BF%90%E8%A1%8C%E5%87%86%E5%A4%87"><span class="top-box-text">运行准备</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BB%BA%E7%AB%8B%E4%BC%9A%E8%AF%9D"><span class="top-box-text">服务端建立会话</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%A0%E8%BE%93%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%A4%84%E7%90%86%E4%BA%8B%E4%BB%B6"><span class="top-box-text">浏览器传输音频与处理事件</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%B8%B4%E6%97%B6%E5%87%AD%E8%AF%81%E4%B8%8E-Agents-SDK"><span class="top-box-text">临时凭证与 Agents SDK</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E4%B8%8E%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90"><span class="top-box-text">工具调用与业务系统集成</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BE%B9%E7%95%8C"><span class="top-box-text">函数调用的执行边界</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A7%E5%88%B6%E8%BF%9E%E6%8E%A5"><span class="top-box-text">服务端控制连接</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BD%BF%E7%94%A8%E9%99%90%E5%88%B6%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D"><span class="top-box-text">使用限制与工程取舍</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BC%9A%E8%AF%9D%E6%97%B6%E9%95%BF%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8D%E6%98%AF%E6%B0%B8%E4%B9%85%E8%AE%B0%E5%BF%86"><span class="top-box-text">会话时长与上下文不是永久记忆</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E9%9F%B3%E9%A2%91%E6%A0%BC%E5%BC%8F%E3%80%81%E9%9F%B3%E8%89%B2%E4%B8%8E%E5%AD%97%E5%B9%95"><span class="top-box-text">音频格式、音色与字幕</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%AF%86%E5%88%AB%E5%87%86%E7%A1%AE%E6%80%A7%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%A3%B0%E5%AD%A6%E6%9D%A1%E4%BB%B6"><span class="top-box-text">识别准确性与设备声学条件</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9D%83%E9%99%90%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="top-box-text">权限、数据与服务可用性</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%88%90%E6%9C%AC%E4%BC%B0%E7%AE%97%E4%B8%8E%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="top-box-text">成本估算与验证方法</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BD%93%E5%89%8D%E4%BB%B7%E6%A0%BC"><span class="top-box-text">当前价格</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%8E%E9%9F%B3%E9%A2%91%E6%97%B6%E9%95%BF%E5%88%B0%E5%A2%9E%E9%87%8F%E6%88%90%E6%9C%AC"><span class="top-box-text">从音频时长到增量成本</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%A5%E5%AE%9E%E9%99%85%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BD%95%E9%AA%8C%E8%AF%81%E6%96%B9%E6%A1%88"><span class="top-box-text">以实际会话记录验证方案</span></a></li></ol></li></ol>
+        </div>
+          
+      </div>
+    </div>
+
+    
+      <div class="next-post">
+        <a class="purple-link" href="/2026/08/31/cognitive-decision-models/">
+          <h3 class="post-title">
+            下一篇：常见的认知决策模型：从问题拆解到行动闭环
+          </h3>
+        </a>
+      </div>
+    
+  </div>
+
+
+    <div id="gitalk-container"></div>
+
+
+
+    <link rel="stylesheet" href="/style/gitalk.min.css"/>
+    <script src="/js/gitalk.min.js"></script>
+    <script>
+        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
+        const gitalk = new Gitalk({
+            clientID: config.clientId,
+            clientSecret: config.clientSecret,
+            repo: config.repository,
+            owner: config.owner,
+            admin: [config.owner],
+            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
+            distractionFreeMode: false,  // Facebook-like distraction free mode
+            createIssueManually: config.createIssueManually ? true : false
+        });
+
+        gitalk.render('gitalk-container')
+
+    </script>
+
+
+
+
+
+
+
+<footer>
+<div class="site-footer">
+  <div class="social-container">
+    
+      
+        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
+          <i class="icon icon-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  
+    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
+  
+  
+  
+  
+  
+  
+</div>
+</footer>
+
+
+      </div>
+    </div>
+    
+<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
+
+<script src="/js/main.js"></script>
+
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-BD6SR7X2TB');
+    </script>
+
+
+
+
+
+  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+</html>
+
