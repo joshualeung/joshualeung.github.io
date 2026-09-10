@@ -111,77 +111,43 @@
         <div class="post-content">
           <p>对着电脑说“把这个页面的按钮放大一点”，AI 开始修改代码；接着问“改到哪了”，它能汇报进度；再补充“只改首页”，任务继续调整。这种体验需要同时处理两件事：及时接住人的话，以及持续执行需要时间的工作。</p>
 <span id="more"></span>
-<p><strong>GPT-Live 的关键设计，可以从实时交谈与后台任务的分工来理解。</strong> 官方文档明确：GPT-Live 负责实时对话，在已有 Codex 任务中，实际工作由该任务选定的模型执行。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/pricing#chatgpt-voice-in-desktop">模型分工说明</a></p>
-<p>本文依据截至 <strong>2026 年 9 月 9 日</strong>查阅的 OpenAI 官方资料。公开文档尚不足以确认 GPT-Live 的网络结构、训练方法，或它与 Realtime API 模型的具体关系。下面先说明已公开的产品分工，再用公开 API 解释实现类似体验的工程机制。</p>
-<h2 id="实时交谈与后台执行的分工"><a class="markdownIt-Anchor" href="#实时交谈与后台执行的分工"></a> 实时交谈与后台执行的分工</h2>
-<p>GPT-Live 支持的 ChatGPT Voice，可以发起较长的任务、查询进度、追加指令，并将结果带回语音对话。用户能够在工作继续时交谈。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/features/voice">ChatGPT Voice 功能说明</a></p>
-<p><a class="simple-lightbox" href="/assets/llm/gpt-live-architecture.svg"><img   src="/images/loading.svg" data-src="/assets/llm/gpt-live-architecture.svg"  alt="GPT-Live 的职责示意：用户与语音层持续交谈，任务层执行工作并返回进度；箭头仅表示功能关系"  lazyload></a></p>
-<p>这张图是根据公开行为整理的职责示意，不代表 OpenAI 披露的内部服务结构或通信协议。</p>
-<p>两类工作对时间的要求不同。语音交互需要及时回应；修改代码、运行测试则可能持续数分钟。将它们分开，可以让“任务还没完成”和“对话仍可继续”同时成立。这是由产品分工得出的工程解释。</p>
-<p>也需要区分三个名称：</p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>本文涉及的职责</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GPT-Live</td>
-<td>桌面版 ChatGPT Voice 中的实时对话</td>
-</tr>
-<tr>
-<td>Realtime API</td>
-<td>面向开发者的实时音频交互接口</td>
-</tr>
-<tr>
-<td>GPT-Live-Transcribe</td>
-<td>从实时音频中持续输出文字的转写模型</td>
-</tr>
-</tbody>
-</table>
-<p>最后一项的公开能力是语音转文字，不提供音频输出，不能仅凭名称将其视为完整的 GPT-Live 对话模型。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/models/gpt-live-transcribe">转写模型说明</a></p>
-<h2 id="声音如何实时往返"><a class="markdownIt-Anchor" href="#声音如何实时往返"></a> 声音如何实时往返</h2>
-<p>要理解语音系统，可以先比较两种公开实现路线。</p>
+
+<p><strong>GPT-Live 负责实时交谈，任务模型负责执行工作。</strong> 官方文档明确：在已有 Codex 任务中，实际工作由该任务选定的模型执行。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/pricing#chatgpt-voice-in-desktop">模型分工说明</a></p>
+<p>本文依据 <strong>2026 年 9 月 9 日</strong>查阅的 OpenAI 官方资料，介绍 GPT-Live 已公开的产品分工，并以 Realtime API 展示实现类似体验的参考方案。</p>
+<h2 id="实时交谈与后台执行的分工"><a href="#实时交谈与后台执行的分工" class="headerlink" title="实时交谈与后台执行的分工"></a>实时交谈与后台执行的分工</h2><p>GPT-Live 支持的 ChatGPT Voice，可以发起较长的任务、查询进度、追加指令，并将结果带回语音对话。用户能够在工作继续时交谈。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/features/voice">ChatGPT Voice 功能说明</a></p>
+<p>下图展示实时对话与后台任务之间的职责关系。</p>
+<p><a class="simple-lightbox" href="/assets/llm/gpt-live-architecture.svg"><img   src="/images/loading.svg" data-src="/assets/llm/gpt-live-architecture.svg"  alt="GPT-Live 的职责示意：用户与语音层持续交谈，任务层执行工作并返回进度" lazyload></a></p>
+<p>两类工作对时间的要求不同。语音交互需要及时回应；修改代码、运行测试则可能持续数分钟。将它们分开，用户就能在任务执行期间继续提问、补充要求。</p>
+<h2 id="声音如何实时往返"><a href="#声音如何实时往返" class="headerlink" title="声音如何实时往返"></a>声音如何实时往返</h2><p>语音系统常见的两种实现路线，主要区别在于声音如何进入模型、回答如何生成。</p>
 <p><strong>串联路线</strong>是“语音识别 → 文字模型 → 语音合成”：先把声音转为文字，再生成回答，最后读出来。它便于接入已有文字助手，也便于检查中间结果。</p>
-<p><strong>原生语音路线</strong>让模型直接处理音频输入并生成音频输出。OpenAI 的语音开发文档将其用于自然、低延迟的交谈。这里的“直接”描述输入输出路径，并不意味着音频不需要编码，或模型内部完全没有文字表示。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/voice-agents">语音系统架构说明</a></p>
-<p>实时传输通常采用流式处理：麦克风持续上传小段音频，回答也分段返回，播放器收到可播放的数据后即可开始播放。在 Realtime API 中，WebRTC 负责传输音频，数据通道可交换控制事件；OpenAI 推荐浏览器和移动客户端优先采用 WebRTC。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-webrtc">WebRTC 接入说明</a></p>
+<p><strong>原生语音路线</strong>让模型直接处理音频输入并生成音频输出。OpenAI 的语音开发文档将其用于自然、低延迟的交谈。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/voice-agents">语音系统架构说明</a></p>
+<p>OpenAI 面向开发者提供的 Realtime API，可以用于构建这样的实时音频应用。传输采用流式处理：麦克风持续上传小段音频，回答也分段返回，播放器收到可播放的数据后即可开始播放。其中，WebRTC 负责传输音频，数据通道可交换控制事件；OpenAI 推荐浏览器和移动客户端优先采用 WebRTC。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-webrtc">WebRTC 接入说明</a></p>
 <p>从工程上看，用户说完话后，到听见回复之间的等待，可以粗略拆成：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">等待时间 ≈ 判断用户说完的耗时</span><br><span class="line">         + 网络与服务处理耗时</span><br><span class="line">         + 生成首段音频的耗时</span><br><span class="line">         + 播放缓冲耗时</span><br></pre></td></tr></table></figure>
-<p>这是一种分析延迟的方式，不是 GPT-Live 的实测数据。模型生成速度只影响其中一部分；即使生成很快，接话判断过于保守，也会让人觉得反应慢。</p>
-<h2 id="接话与打断的处理"><a class="markdownIt-Anchor" href="#接话与打断的处理"></a> 接话与打断的处理</h2>
-<h3 id="判断用户是否说完"><a class="markdownIt-Anchor" href="#判断用户是否说完"></a> 判断用户是否说完</h3>
-<p>“帮我把按钮改成……嗯……蓝色。”中间的停顿，不一定表示用户已经说完。</p>
+
+<p>按这个分解，模型生成速度和接话判断都会影响响应时间：即使生成很快，系统等待用户说完的时间过长，也会让人觉得反应慢。</p>
+<h2 id="接话与打断的处理"><a href="#接话与打断的处理" class="headerlink" title="接话与打断的处理"></a>接话与打断的处理</h2><h3 id="判断用户是否说完"><a href="#判断用户是否说完" class="headerlink" title="判断用户是否说完"></a>判断用户是否说完</h3><p>“帮我把按钮改成……嗯……蓝色。”用户在停顿后补充了颜色要求，系统需要给这种思考过程留出时间。</p>
 <p>Realtime API 提供两类判断方式：<code>server_vad</code> 根据声音活动和静默时长划分语音；<code>semantic_vad</code> 结合用户表达的内容，估计一句话是否结束。VAD 指语音活动检测，例如判断此时有没有人在讲话。</p>
 <p>静默阈值越短，系统越容易快速接话，也越容易截断思考中的停顿；语义判断可以在“嗯……”这类表达后多等一会儿。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-vad">接话判断说明</a></p>
-<h3 id="打断后同步已经听到的内容"><a class="markdownIt-Anchor" href="#打断后同步已经听到的内容"></a> 打断后同步已经听到的内容</h3>
-<p>用户插话时，系统需要协调三件事：停止当前回答的生成、停止播放剩余音频、修正对话中已播出的范围。</p>
+<h3 id="打断后同步已经听到的内容"><a href="#打断后同步已经听到的内容" class="headerlink" title="打断后同步已经听到的内容"></a>打断后同步已经听到的内容</h3><p>用户插话时，系统需要协调三件事：停止当前回答的生成、停止播放剩余音频、修正对话中已播出的范围。</p>
 <p>假设模型已经生成十秒音频，用户只听了前三秒就插话。如果历史仍把十秒内容都当成已经说过，后续就可能出现“刚才已经解释过”的错位。</p>
 <p>Realtime API 将移除未播放部分称为截断。WebRTC 和 SIP 连接由服务端管理输出缓冲并处理自动截断；使用 WebSocket 时，客户端需要停止播放，并通过 <code>conversation.item.truncate</code> 告知播放位置。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-conversations#interruption-and-truncation">打断与截断说明</a></p>
-<p>这些是公开 API 的机制。ChatGPT Voice 支持用户插话，但其是否使用上述相同配置和事件协议，公开资料尚未确认。</p>
-<h2 id="任务如何接住后续指令"><a class="markdownIt-Anchor" href="#任务如何接住后续指令"></a> 任务如何接住后续指令</h2>
-<p>回到“把按钮放大一点”的例子。一个可实现类似体验的应用，可以按以下流程组织；这是参考设计，不是 GPT-Live 的内部调用记录。</p>
+<h2 id="任务如何接住后续指令"><a href="#任务如何接住后续指令" class="headerlink" title="任务如何接住后续指令"></a>任务如何接住后续指令</h2><p>回到“把按钮放大一点”的例子，下面的参考流程展示语音层与任务层如何配合。</p>
 <ol>
 <li><strong>语音层整理请求</strong>：从对话中确定要修改的页面和按钮，必要时追问。</li>
 <li><strong>任务层开始执行</strong>：创建任务并返回标识，例如“任务 A”；语音会话继续接收输入。</li>
 <li><strong>进度回到对话</strong>：任务层报告“已定位样式，正在检查效果”，语音层据此回答进度。</li>
 <li><strong>补充要求进入原任务</strong>：用户说“只改首页”时，系统把新约束送给任务 A，并接收处理结果。</li>
 </ol>
-<p>实现时，需要记录当前讨论的是哪个任务，以及任务收到的是哪一版要求。还要区分“停止播报”和“取消后台工作”：用户只是打断一句说明时，系统应继续理解后续话语，再决定是否改变任务。这些属于应用的状态管理设计。</p>
+<p>实现时，系统需要记录当前讨论的是哪个任务，以及任务收到的是哪一版要求。用户插话后，语音层先停止播报、接收后续话语，再根据完整意图决定任务是继续、调整还是取消。</p>
 <p>公开 Realtime API 提供一种可用的连接方式：客户端传输音频，应用服务器通过另一个控制连接接入同一会话，监听事件、更新指令、响应工具调用。这样，任务逻辑可以放在服务端。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime-server-controls">服务端控制说明</a></p>
-<h2 id="屏幕上下文如何补足语音"><a class="markdownIt-Anchor" href="#屏幕上下文如何补足语音"></a> 屏幕上下文如何补足语音</h2>
-<p>“把这个按钮放大”中的“这个”，需要与当前界面对应。官方说明，在 macOS 开启屏幕上下文后，用户可以请求查看当前窗口；ChatGPT 能获取包含窗口图像和可访问文本的 Appshot，作为上下文。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/features/voice#show-chatgpt-what-you-see">屏幕上下文说明</a></p>
-<p>因此，理解这句话需要把语音中的要求、窗口里的对象，以及正在讨论的任务关联起来。仅凭这项功能，不能推断 GPT-Live 在持续接收屏幕视频，或知道它内部采用了怎样的视觉编码器。</p>
-<h2 id="从公开资料能确定的实现边界"><a class="markdownIt-Anchor" href="#从公开资料能确定的实现边界"></a> 从公开资料能确定的实现边界</h2>
-<p>GPT-Live 的产品分工已经比较清楚：实时对话负责交流和协调，任务模型负责持续执行。实现类似体验时，公开 API 已提供实时音频、接话判断、打断处理和服务端控制等基础能力。</p>
-<p>尚不能从这些资料确定的，是 GPT-Live 自身的参数规模、音频编码方法、训练配方，以及是否与某个公开 Realtime 模型共享权重。把接口能力直接当作专有模型内部结构，会超出证据范围。</p>
-<p>对开发者而言，最有用的启示是：<strong>让对话及时响应，让任务持续执行，再让双方共享准确的进度和用户要求。</strong> 语音体验的质量，取决于这几部分是否配合一致。</p>
+<h2 id="屏幕上下文如何补足语音"><a href="#屏幕上下文如何补足语音" class="headerlink" title="屏幕上下文如何补足语音"></a>屏幕上下文如何补足语音</h2><p>“把这个按钮放大”中的“这个”，需要与当前界面对应。官方说明，在 macOS 开启屏幕上下文后，用户可以请求查看当前窗口；ChatGPT 能获取包含窗口图像和可访问文本的 Appshot，作为上下文。<a target="_blank" rel="noopener" href="https://learn.chatgpt.com/docs/features/voice#show-chatgpt-what-you-see">屏幕上下文说明</a></p>
+<p>窗口上下文为“这个按钮”提供具体对象，语音补充“放大”的要求，任务记录则明确修改发生在哪个页面。系统将这三部分关联起来，就能把一句简短的口头要求转化为具体的操作。</p>
 
         </div>
           
         <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%AE%9E%E6%97%B6%E4%BA%A4%E8%B0%88%E4%B8%8E%E5%90%8E%E5%8F%B0%E6%89%A7%E8%A1%8C%E7%9A%84%E5%88%86%E5%B7%A5"><span class="top-box-text"> 实时交谈与后台执行的分工</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%A3%B0%E9%9F%B3%E5%A6%82%E4%BD%95%E5%AE%9E%E6%97%B6%E5%BE%80%E8%BF%94"><span class="top-box-text"> 声音如何实时往返</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%8E%A5%E8%AF%9D%E4%B8%8E%E6%89%93%E6%96%AD%E7%9A%84%E5%A4%84%E7%90%86"><span class="top-box-text"> 接话与打断的处理</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E8%AF%B4%E5%AE%8C"><span class="top-box-text"> 判断用户是否说完</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%89%93%E6%96%AD%E5%90%8E%E5%90%8C%E6%AD%A5%E5%B7%B2%E7%BB%8F%E5%90%AC%E5%88%B0%E7%9A%84%E5%86%85%E5%AE%B9"><span class="top-box-text"> 打断后同步已经听到的内容</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BB%BB%E5%8A%A1%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8F%E5%90%8E%E7%BB%AD%E6%8C%87%E4%BB%A4"><span class="top-box-text"> 任务如何接住后续指令</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%B1%8F%E5%B9%95%E4%B8%8A%E4%B8%8B%E6%96%87%E5%A6%82%E4%BD%95%E8%A1%A5%E8%B6%B3%E8%AF%AD%E9%9F%B3"><span class="top-box-text"> 屏幕上下文如何补足语音</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BB%8E%E5%85%AC%E5%BC%80%E8%B5%84%E6%96%99%E8%83%BD%E7%A1%AE%E5%AE%9A%E7%9A%84%E5%AE%9E%E7%8E%B0%E8%BE%B9%E7%95%8C"><span class="top-box-text"> 从公开资料能确定的实现边界</span></a></li></ol>
+          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%AE%9E%E6%97%B6%E4%BA%A4%E8%B0%88%E4%B8%8E%E5%90%8E%E5%8F%B0%E6%89%A7%E8%A1%8C%E7%9A%84%E5%88%86%E5%B7%A5"><span class="top-box-text">实时交谈与后台执行的分工</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%A3%B0%E9%9F%B3%E5%A6%82%E4%BD%95%E5%AE%9E%E6%97%B6%E5%BE%80%E8%BF%94"><span class="top-box-text">声音如何实时往返</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%8E%A5%E8%AF%9D%E4%B8%8E%E6%89%93%E6%96%AD%E7%9A%84%E5%A4%84%E7%90%86"><span class="top-box-text">接话与打断的处理</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E8%AF%B4%E5%AE%8C"><span class="top-box-text">判断用户是否说完</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%89%93%E6%96%AD%E5%90%8E%E5%90%8C%E6%AD%A5%E5%B7%B2%E7%BB%8F%E5%90%AC%E5%88%B0%E7%9A%84%E5%86%85%E5%AE%B9"><span class="top-box-text">打断后同步已经听到的内容</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BB%BB%E5%8A%A1%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8F%E5%90%8E%E7%BB%AD%E6%8C%87%E4%BB%A4"><span class="top-box-text">任务如何接住后续指令</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%B1%8F%E5%B9%95%E4%B8%8A%E4%B8%8B%E6%96%87%E5%A6%82%E4%BD%95%E8%A1%A5%E8%B6%B3%E8%AF%AD%E9%9F%B3"><span class="top-box-text">屏幕上下文如何补足语音</span></a></li></ol>
         </div>
           
       </div>
