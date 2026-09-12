@@ -1,248 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>RAG Query改写系列2: Doc2Query</title>
-<meta name="keywords" content="RAG Query改写系列2: Doc2Query, 击壤而歌">
-<meta name="description" content="Doc2Query 是由微软的Liang Wang等人于2023年3月在论文《Query2doc: Query Expansion with Large Language Models》 中提出的一种RAG Query改写技术。 
-其思想非">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="RAG Query改写系列2: Doc2Query">
-<meta property="og:description" content="Doc2Query 是由微软的Liang Wang等人于2023年3月在论文《Query2doc: Query Expansion with Large Language Models》 中提出的一种RAG Query改写技术。 
-其思想非">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG Query改写系列2: Doc2Query | 击壤而歌</title>
+  <meta name="description" content="Doc2Query 是由微软的Liang Wang等人于2023年3月在论文 《Query2doc: Query Expansion with Large Language Models》 中提出的一种RAG Query改写技术。 其思想非常简单直接: 约定原始查询Query, Doc2Query 通过 few-sho…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="RAG Query改写系列2: Doc2Query">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/11/rag/query-rewrite-doc2query/">
+  <meta property="og:description" content="Doc2Query 是由微软的Liang Wang等人于2023年3月在论文 《Query2doc: Query Expansion with Large Language Models》 中提出的一种RAG Query改写技术。 其思想非常简单直接: 约定原始查询Query, Doc2Query 通过 few-sho…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/11/rag/query-rewrite-doc2query/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>RAG Query改写系列2: Doc2Query</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2025-01-11">2025年1月11日</time><span class="meta-dot">·</span><span>2 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
+  <div class="article-reading">
     
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">RAG Query改写系列2: Doc2Query</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-11</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/RAG/">
-              RAG
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Retrieval-Augmented-Generation/">
-              Retrieval Augmented Generation
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Prompt-Engineering/">
-              Prompt Engineering
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Doc2Query/">
-              Doc2Query
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <p>Doc2Query 是由微软的Liang Wang等人于2023年3月在论文<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2303.07678">《Query2doc: Query Expansion with Large Language Models》</a> 中提出的一种RAG Query改写技术。 </p>
+    <div class="article-body"><div class="prose"><p>Doc2Query 是由微软的Liang Wang等人于2023年3月在论文<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2303.07678">《Query2doc: Query Expansion with Large Language Models》</a> 中提出的一种RAG Query改写技术。 </p>
 <p>其思想非常简单直接:  约定原始查询Query, Doc2Query 通过 few-shot prompting 的方式， 生成若干个能够回答原始查询的伪文档， 然后将这些伪文档拼接到原始查询中， 作为新的查询Query。 </p>
 <p>伪文档的生成提示词示例如下:</p>
-<p><a class="simple-lightbox" href="/assets/rag/doc2query-1.png"><img   src="/images/loading.svg" data-src="/assets/rag/doc2query-1.png"  lazyload></a></p>
+<p><img src="/assets/rag/doc2query-1.png"></p>
 <p>对于稀疏检索(如BM25), 拼接方式如下:</p>
 <p>$$<br>q^{+} &#x3D; \text{concat}({q} \times n, d’)<br>$$</p>
 <p>由于伪文档的长度显著长于原始Query, 为防止原始Query的语义被淹没， 需要对原始查询进行加权。 </p>
 <p>对于稠密检索(如DPR), 拼接方式如下:</p>
 <p>$$<br>$q^{+} &#x3D; \text{concat}(q, [\text{SEP}], d’)$<br>$$</p>
 <p>即， 新的Query是原始Query和伪文档的拼接。 </p>
-<p><a class="simple-lightbox" href="/assets/rag/doc2query-2.png"><img   src="/images/loading.svg" data-src="/assets/rag/doc2query-2.png"  lazyload></a></p>
+<p><img src="/assets/rag/doc2query-2.png"></p>
 <p>作者分别在领域内检索任务和零样本的跨领域检索任务下的不同数据集上进行了评估， 评估指标包括MRR@10, R@k ( k ∈ {50, 1k})以及 nDCG@10。 主要的实验结论如下:<br>对于领域内检索任务:</p>
 <ul>
 <li>在稀疏检索任务中， BM25 + Doc2Query 的检索效果显著优于BM25 及 BM25 + RM3. (注: RM3是一种基于伪相关反馈的检索增强技术)， 仅在部分数据上落后于 docT5query, 而 docT5query 的主要劣势是需要通过特定的数据集进行微调，成本较高。 </li>
 <li>在稠密检索任务中， DPR + Doc2Query 的检索效果显著优于 ANCE 和 HyDE。 但是， 与使用了中间预训练或是基于Reranker 蒸馏的方案， 如 RocketQAv2 和 AR2 相比，  Doc2Query的优势并不明显。</li>
 </ul>
-<p><a class="simple-lightbox" href="/assets/rag/doc2query-3.png"><img   src="/images/loading.svg" data-src="/assets/rag/doc2query-3.png"  lazyload></a><br>对于跨领域的零样本检索任务， Doc2Query 在DBPedia 上取得了显著的提升， 但在 NFCorpus 和 Scifact 数据集上， 其rank性能略有下降。 这可能与训练数据集与目标数据集的分布差异有关。 </p>
+<p><img src="/assets/rag/doc2query-3.png"><br>对于跨领域的零样本检索任务， Doc2Query 在DBPedia 上取得了显著的提升， 但在 NFCorpus 和 Scifact 数据集上， 其rank性能略有下降。 这可能与训练数据集与目标数据集的分布差异有关。 </p>
 <p>Doc2Query 是一种非常简单有效的RAG Query改写技术， 在思想上与 HyDE 非常相似， Psudo Document 即是 HyDE 中的 Hypothetical Document， 只是在拿到Psudo Document 后怎么得到最终的 Query的方案上略有不同。 Anyway, 在实践上都可以快速尝试， 毕竟几乎没有成本。 </p>
-
-        </div>
-          
-        <div class="top-div">
-          
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/10/rag/query-rewrite-hyde/">
-          <h3 class="post-title">
-            下一篇：RAG Query改写系列1: HyDE
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/RAG/">RAG</a><a href="/tags/Retrieval-Augmented-Generation/">Retrieval Augmented Generation</a><a href="/tags/Prompt-Engineering/">Prompt Engineering</a><a href="/tags/Doc2Query/">Doc2Query</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22RAG%20Query%E6%94%B9%E5%86%99%E7%B3%BB%E5%88%972%3A%20Doc2Query%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/12/rag/query-rewrite-rewrite-retrieval-read/"><span>← 上一篇</span><strong>RAG Query改写系列3: Rewrite-Retrieval-Read</strong></a><a href="/2025/01/10/rag/query-rewrite-hyde/"><span>下一篇 →</span><strong>RAG Query改写系列1: HyDE</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

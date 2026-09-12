@@ -1,101 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>Introducing RedTrans - The Missing Translation Tool for REDNote</title>
-<meta name="keywords" content="Introducing RedTrans - The Missing Translation Tool for REDNote, 击壤而歌">
-<meta name="description" content="RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="Introducing RedTrans - The Missing Translation Tool for REDNote">
-<meta property="og:description" content="RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Introducing RedTrans - The Missing Translation Tool for REDNote | 击壤而歌</title>
+  <meta name="description" content="RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书) website ( https://www.xiaohongshu.com/…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="Introducing RedTrans - The Missing Translation Tool for REDNote">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/13/introducing-redtrans/">
+  <meta property="og:description" content="RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书) website ( https://www.xiaohongshu.com/…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/13/introducing-redtrans/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 <!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>Introducing RedTrans - The Missing Translation Tool for REDNote</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2025-01-13">2025年1月13日</time><span class="meta-dot">·</span><span>2 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">Introducing RedTrans - The Missing Translation Tool for REDNote</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-13</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/translation-REDNote-Xiaohongshu/">
-              -translation - REDNote - Xiaohongshu
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <p>RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书) website (<a target="_blank" rel="noopener" href="https://www.xiaohongshu.com/">https://www.xiaohongshu.com/</a>).</p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Features"><span class="toc-text">Features</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#How-to-use"><span class="toc-text">How to use</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Install"><span class="toc-text">Install</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Usage"><span class="toc-text">Usage</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Common-Questions"><span class="toc-text">Common Questions</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-should-I-get-the-API-key"><span class="toc-text">How should I get the API key?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#The-translate-button-doesn%E2%80%99t-show-up"><span class="toc-text">The translate button doesn’t show up</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Feedback"><span class="toc-text">Feedback</span></a></li></ol></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><p>RedTrans is a dedicated Chrome extension that allows you to translate text in REDNote (also known as Xiaohongshu, or 小红书) website (<a target="_blank" rel="noopener" href="https://www.xiaohongshu.com/">https://www.xiaohongshu.com/</a>).</p>
 <h1 id="Features"><a href="#Features" class="headerlink" title="Features"></a>Features</h1><ul>
 <li>Translate titles on explore page, title&#x2F;content&#x2F;comments on note detail page, message on notification page</li>
 <li>Use LLM to translate text, OpenAI and DeepSeek supported as of now.</li>
@@ -126,114 +85,36 @@
 <li>Otherwise it may be a bug, please report it to me.</li>
 </ul>
 <h2 id="Feedback"><a href="#Feedback" class="headerlink" title="Feedback"></a>Feedback</h2><p>If you have any feedback, please feel free to contact me.</p>
-<p>Email: <a href="mailto:&#108;&#x63;&#x6d;&#46;&#104;&#x75;&#x73;&#116;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#x2e;&#99;&#x6f;&#109;">lcm.hust@gmail.com</a></p>
-
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-1"><a class="top-box-link" href="#Features"><span class="top-box-text">Features</span></a></li><li class="top-box-item top-box-level-1"><a class="top-box-link" href="#How-to-use"><span class="top-box-text">How to use</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#Install"><span class="top-box-text">Install</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#Usage"><span class="top-box-text">Usage</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#Common-Questions"><span class="top-box-text">Common Questions</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#How-should-I-get-the-API-key"><span class="top-box-text">How should I get the API key?</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#The-translate-button-doesn%E2%80%99t-show-up"><span class="top-box-text">The translate button doesn’t show up</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#Feedback"><span class="top-box-text">Feedback</span></a></li></ol></li></ol>
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/13/introducing-redtrans-chs/">
-          <h3 class="post-title">
-            下一篇：RedTrans - 小红书专属翻译插件
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
+<p>Email: <a href="mailto:&#x6c;&#x63;&#109;&#46;&#x68;&#x75;&#x73;&#116;&#x40;&#103;&#109;&#97;&#x69;&#108;&#x2e;&#99;&#x6f;&#x6d;">lcm.hust@gmail.com</a></p>
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/translation-REDNote-Xiaohongshu/">-translation - REDNote - Xiaohongshu</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22Introducing%20RedTrans%20-%20The%20Missing%20Translation%20Tool%20for%20REDNote%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/13/introducing-redtrans-chs/"><span>← 上一篇</span><strong>RedTrans - 小红书专属翻译插件</strong></a><a href="/2025/01/13/rag/query-rewrite-step-back-prompting/"><span>下一篇 →</span><strong>RAG Query改写系列4: Step Back Prompting</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  </body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

@@ -1,120 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>RAG中的文档分块策略</title>
-<meta name="keywords" content="RAG中的文档分块策略, 击壤而歌">
-<meta name="description" content="在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。
-Chunking 将文档划分为多个易于处理的小块，使得在线检索阶段仅需">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="RAG中的文档分块策略">
-<meta property="og:description" content="在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。
-Chunking 将文档划分为多个易于处理的小块，使得在线检索阶段仅需">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG中的文档分块策略 | 击壤而歌</title>
+  <meta name="description" content="在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。 Chunking 将文档划分为多个易于处理的小块，使得在线检索阶段仅需返回相关的文档块， 而不是整个文档， 从而避免LLM的上下文窗口限制。然而， 要…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="RAG中的文档分块策略">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/17/rag/chunking/">
+  <meta property="og:description" content="在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。 Chunking 将文档划分为多个易于处理的小块，使得在线检索阶段仅需返回相关的文档块， 而不是整个文档， 从而避免LLM的上下文窗口限制。然而， 要…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/17/rag/chunking/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>RAG中的文档分块策略</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2025-01-17">2025年1月17日</time><span class="meta-dot">·</span><span>11 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">RAG中的文档分块策略</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-17</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/RAG/">
-              RAG
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Retrieval-Augmented-Generation/">
-              Retrieval Augmented Generation
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Chunking/">
-              Chunking
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <p>在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。</p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Chunking%E7%AD%96%E7%95%A5"><span class="toc-text">Chunking策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9B%BA%E5%AE%9A%E5%A4%A7%E5%B0%8F%E5%88%86%E5%9D%97-Fixed-size-Chunking"><span class="toc-text">1. 固定大小分块 (Fixed-size Chunking)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%80%92%E5%BD%92%E5%88%86%E5%9D%97"><span class="toc-text">2. 递归分块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%BB%93%E6%9E%84%E7%9A%84%E5%88%86%E5%9D%97"><span class="toc-text">3. 基于文档结构的分块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%AF%AD%E4%B9%89%E5%88%86%E5%9D%97"><span class="toc-text">4. 语义分块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Agentic-%E5%88%86%E5%9D%97"><span class="toc-text">5. Agentic 分块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><p>在基于 DPR (Deep Passage Retrieval) 的 RAG 系统中， Chunking 是离线索引阶段非常重要的环节， 对RAG的最终效果有重要影响。</p>
 <p>Chunking 将文档划分为多个易于处理的小块，使得在线检索阶段仅需返回相关的文档块， 而不是整个文档， 从而避免LLM的上下文窗口限制。然而， 要返回与查询高度相关的文档块， 提前是文档能被合理地分块。否则，有效的信息可能会因为错误的分块而被噪声淹没，或者语义和上下文信息被破坏，这些都会降低检索的有效性。 </p>
 <p>文本介绍与Chunking相关的不同策略， 介绍其基本思想、实现细节及使用方式。</p>
-<p><a class="simple-lightbox" target="_blank" rel="noopener" href="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*sBEoJ2xomZl77X6wUmdOlw.png"><img   src="/images/loading.svg" data-src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*sBEoJ2xomZl77X6wUmdOlw.png"  alt="文档分块在RAG中的位置" lazyload></a></p>
+<p><img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*sBEoJ2xomZl77X6wUmdOlw.png" alt="文档分块在RAG中的位置"></p>
 <h2 id="Chunking策略"><a href="#Chunking策略" class="headerlink" title="Chunking策略"></a>Chunking策略</h2><h3 id="1-固定大小分块-Fixed-size-Chunking"><a href="#1-固定大小分块-Fixed-size-Chunking" class="headerlink" title="1. 固定大小分块 (Fixed-size Chunking)"></a>1. 固定大小分块 (Fixed-size Chunking)</h3><p>这是最简单粗暴的分块策略，不考虑文档的内容和结构，将文档划分成固定大小的文本块。 这里的固定大小， 可以是固定的字符、token、单词或者句子个数。 这种方式实现最简单， 同时缺点也最明显: 很容易损坏语义的完整性和连贯性，粒度越细， 损坏越严重。为了缓解这种情况， 通常会在相邻的chunk间有一定重叠(chunk overlap)，但这在带来一定数据冗余的同时， 仍只能有限挽救分块边界对语义的破坏。 </p>
 <p>在固定大小分块策略中， 除了切分的粒度， 分块的大小(chunk_size)及分块重叠的大小(chunk_overlap)也是影响分块效果的重要因素。一般来说， 分块越小， 重叠越大， 检索效果越好(Recall&#x2F;Precision&#x2F;F1等)。 </p>
 <p>在 LangChain 中，  可以使用 CharacterTextSplitter 来实现固定字符大小的文档分块。也可以利用 Chonkie 库实现，以下代码实现了固定token数量的文档分块，其中tokenizer使用的是gpt2同款:</p>
@@ -135,7 +78,7 @@ Chunking 将文档划分为多个易于处理的小块，使得在线检索阶�
 <p>更多细节见LangChain 文档 <a target="_blank" rel="noopener" href="https://python.langchain.com/docs/how_to/code_splitter/">How to split code</a></p>
 <p>对于某些特殊的文档结构， 比如表格， 或非文本模态内容如图片、音频与视频， 可以通过LLM对其进行文字总结后再进行分块处理。 </p>
 <h3 id="4-语义分块"><a href="#4-语义分块" class="headerlink" title="4. 语义分块"></a>4. 语义分块</h3><p>以上分块策略均涉及通过指定分隔符对文档进行分割， 且通常需要指定块的大小。 语义分块则是以语义上下文的相关性来作为分块边界的依据。 它对文档进行基础分块（比如划分为句子)后， 对每个分块进行 Embedding处理。 然后， 以句子出现的先后次序， 评估当前分块 Embedding 与其前面一定窗口内分块Embedding均值的余弦距离。 在余弦距离大于一定阈值(绝对值、分位数等)的地方进行分割。</p>
-<p><a class="simple-lightbox" href="/assets/rag/semantic-chunk-1.webp"><img   src="/images/loading.svg" data-src="/assets/rag/semantic-chunk-1.webp"  lazyload></a></p>
+<p><img src="/assets/rag/semantic-chunk-1.webp"></p>
 <p>语义分块相比前两种文档分块方式， 无论是性能还是成本都不占优势。 在论文 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2410.13070">Is Semantic Chunking Worth the Computational Cost?</a>中， Renyi Qu等人对其效果以及成本的合理性进行了挑战。 指出语义分块仅在主题多样性较高的拼接数据集中表现较好。 在非合成数据集中， 基于固定大小的分块策略不仅更快、成本更低， 效果也更好。 </p>
 <h3 id="5-Agentic-分块"><a href="#5-Agentic-分块" class="headerlink" title="5. Agentic 分块"></a>5. Agentic 分块</h3><p>Agentic 分块算法通过LLM来决定文档块中应该包含哪些信息以及如何得到文档块。 </p>
 <p>为了得到初始分块， 它首先利用LLM从原始文本中提取出独立陈述（称为 Propositions, 也有翻译为命题，即文本中的原子表达式， Proposition 封装了一个独特的事实，并以简洁、自包含的自然语言格式呈现, 详见论文<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2312.06648">《Dense X Retrieval: What Retrieval Granularity Should We Use?》</a>) </p>
@@ -161,113 +104,35 @@ Chunking 将文档划分为多个易于处理的小块，使得在线检索阶�
 <li><a target="_blank" rel="noopener" href="https://github.com/FullStackRetrieval-com/RetrievalTutorials/blob/main/5_Levels_Of_Text_Splitting.ipynb">Greg Kamradt的RAG教程代码</a></li>
 <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2312.06648">Dense X Retrieval: What Retrieval Granularity Should We Use?</a></li>
 </ol>
-
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#Chunking%E7%AD%96%E7%95%A5"><span class="top-box-text">Chunking策略</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#1-%E5%9B%BA%E5%AE%9A%E5%A4%A7%E5%B0%8F%E5%88%86%E5%9D%97-Fixed-size-Chunking"><span class="top-box-text">1. 固定大小分块 (Fixed-size Chunking)</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#2-%E9%80%92%E5%BD%92%E5%88%86%E5%9D%97"><span class="top-box-text">2. 递归分块</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#3-%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%BB%93%E6%9E%84%E7%9A%84%E5%88%86%E5%9D%97"><span class="top-box-text">3. 基于文档结构的分块</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#4-%E8%AF%AD%E4%B9%89%E5%88%86%E5%9D%97"><span class="top-box-text">4. 语义分块</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#5-Agentic-%E5%88%86%E5%9D%97"><span class="top-box-text">5. Agentic 分块</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%80%BB%E7%BB%93"><span class="top-box-text">总结</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%8F%82%E8%80%83"><span class="top-box-text">参考</span></a></li></ol>
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/13/introducing-redtrans/">
-          <h3 class="post-title">
-            下一篇：Introducing RedTrans - The Missing Translation Tool for REDNote
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/RAG/">RAG</a><a href="/tags/Retrieval-Augmented-Generation/">Retrieval Augmented Generation</a><a href="/tags/Chunking/">Chunking</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22RAG%E4%B8%AD%E7%9A%84%E6%96%87%E6%A1%A3%E5%88%86%E5%9D%97%E7%AD%96%E7%95%A5%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/18/rag/multi-vector/"><span>← 上一篇</span><strong>RAG中的多向量检索实践</strong></a><a href="/2025/01/13/introducing-redtrans-chs/"><span>下一篇 →</span><strong>RedTrans - 小红书专属翻译插件</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

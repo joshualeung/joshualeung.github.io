@@ -1,117 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>RAG中的多向量检索实践</title>
-<meta name="keywords" content="RAG中的多向量检索实践, 击壤而歌">
-<meta name="description" content="在之前的文章中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 
-创建多向量有多">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="RAG中的多向量检索实践">
-<meta property="og:description" content="在之前的文章中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 
-创建多向量有多">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG中的多向量检索实践 | 击壤而歌</title>
+  <meta name="description" content="在 之前的文章 中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 创建多向量有多种方式， 包括: 为每一个文档块创建子分块， 基于子分块和原始文档块进行匹配，…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="RAG中的多向量检索实践">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/18/rag/multi-vector/">
+  <meta property="og:description" content="在 之前的文章 中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 创建多向量有多种方式， 包括: 为每一个文档块创建子分块， 基于子分块和原始文档块进行匹配，…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/18/rag/multi-vector/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>RAG中的多向量检索实践</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2025-01-18">2025年1月18日</time><span class="meta-dot">·</span><span>7 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">RAG中的多向量检索实践</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-18</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/RAG/">
-              RAG
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Retrieval-Augmented-Generation/">
-              Retrieval Augmented Generation
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Multi-Vector/">
-              Multi-Vector
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <p>在<a href="https://orrrrz.github.io/2025/01/17/rag/chunking/">之前的文章</a>中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 </p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%90%E5%88%86%E5%9D%97%E5%90%91%E9%87%8F"><span class="toc-text">子分块向量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E6%A1%A3%E6%91%98%E8%A6%81"><span class="toc-text">文档摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%81%87%E8%AE%BE%E6%9F%A5%E8%AF%A2"><span class="toc-text">假设查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E5%90%91%E9%87%8F%E5%9C%A8%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">多向量在多模态RAG中的应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><p>在<a href="https://orrrrz.github.io/2025/01/17/rag/chunking/">之前的文章</a>中， 我们介绍了RAG中常见的文档分块策略。 这些分块策略对于文档中的任何信息都只有一个与之对应的向量(文档重叠的部分除外)。 在实际应用场景中， 我们可以通过为每一个文档块关联多个向量来进一步提升检索的效果。 </p>
 <p>创建多向量有多种方式， 包括:</p>
 <ul>
 <li>为每一个文档块创建子分块， 基于子分块和原始文档块进行匹配， 返回原始文档块。</li>
@@ -155,7 +98,7 @@
 
 
 <h2 id="多向量在多模态RAG中的应用"><a href="#多向量在多模态RAG中的应用" class="headerlink" title="多向量在多模态RAG中的应用"></a>多向量在多模态RAG中的应用</h2><p>上面介绍了多向量在文本模态上创建多向量的三种方法。 多向量只是一种将检索表征与合成表征解耦的索引范式， 对于多模态内容来说， 这也同样适用。 </p>
-<p><a class="simple-lightbox" target="_blank" rel="noopener" href="https://blog.langchain.dev/content/images/2023/10/mvr_overview.png"><img   src="/images/loading.svg" data-src="https://blog.langchain.dev/content/images/2023/10/mvr_overview.png"  lazyload></a></p>
+<p><img src="https://blog.langchain.dev/content/images/2023/10/mvr_overview.png"></p>
 <p>在文章 <a target="_blank" rel="noopener" href="https://blog.langchain.dev/semi-structured-multi-modal-rag/">Multi-Vector Retriever for RAG on tables, text, and images</a>中， LangChain 团队介绍了将多向量应用于多模态内容的几种方式: </p>
 <ul>
 <li><p>使用多模态向量模型(如CLIP)来同时对图像和文本进行向量化， 通过多模态向量来检索， 但返回原始图像。 。</p>
@@ -169,113 +112,35 @@
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://python.langchain.com/docs/how_to/multi_vector/">How to retrieve using multiple vectors per document</a></li>
 </ul>
-
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="top-box-text">准备工作</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%AD%90%E5%88%86%E5%9D%97%E5%90%91%E9%87%8F"><span class="top-box-text">子分块向量</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%96%87%E6%A1%A3%E6%91%98%E8%A6%81"><span class="top-box-text">文档摘要</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%81%87%E8%AE%BE%E6%9F%A5%E8%AF%A2"><span class="top-box-text">假设查询</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%A4%9A%E5%90%91%E9%87%8F%E5%9C%A8%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="top-box-text">多向量在多模态RAG中的应用</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%8F%82%E8%80%83"><span class="top-box-text">参考</span></a></li></ol>
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/17/rag/chunking/">
-          <h3 class="post-title">
-            下一篇：RAG中的文档分块策略
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/RAG/">RAG</a><a href="/tags/Retrieval-Augmented-Generation/">Retrieval Augmented Generation</a><a href="/tags/Multi-Vector/">Multi-Vector</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22RAG%E4%B8%AD%E7%9A%84%E5%A4%9A%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/25/llm/rat/"><span>← 上一篇</span><strong>关于 DeepSeek-R1 的一些有趣实验和探索</strong></a><a href="/2025/01/17/rag/chunking/"><span>下一篇 →</span><strong>RAG中的文档分块策略</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

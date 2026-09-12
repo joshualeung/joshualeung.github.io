@@ -1,136 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>关于 DeepSeek-R1 的一些有趣实验和探索</title>
-<meta name="keywords" content="关于 DeepSeek-R1 的一些有趣实验和探索, 击壤而歌">
-<meta name="description" content="RAT: 思考与响应的解耦RAT(Retrieval Augmented Thinking) 是由EverArt创始人 Pietro Schirano提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="关于 DeepSeek-R1 的一些有趣实验和探索">
-<meta property="og:description" content="RAT: 思考与响应的解耦RAT(Retrieval Augmented Thinking) 是由EverArt创始人 Pietro Schirano提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>关于 DeepSeek-R1 的一些有趣实验和探索 | 击壤而歌</title>
+  <meta name="description" content="RAT: 思考与响应的解耦 RAT(Retrieval Augmented Thinking) 是由EverArt创始人 Pietro Schirano 提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他LLM进行结构化思考， 从而生成更加准确的结果。 RAT的想法来源于对Dee…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="关于 DeepSeek-R1 的一些有趣实验和探索">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/25/llm/rat/">
+  <meta property="og:description" content="RAT: 思考与响应的解耦 RAT(Retrieval Augmented Thinking) 是由EverArt创始人 Pietro Schirano 提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他LLM进行结构化思考， 从而生成更加准确的结果。 RAT的想法来源于对Dee…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/25/llm/rat/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>关于 DeepSeek-R1 的一些有趣实验和探索</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2025-01-25">2025年1月25日</time><span class="meta-dot">·</span><span>6 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">关于 DeepSeek-R1 的一些有趣实验和探索</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-25</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/DeepSeek-R1/">
-              DeepSeek-R1
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Claude-Sonnet/">
-              Claude Sonnet
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Aider/">
-              Aider
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/PPFO/">
-              PPFO
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/RAT/">
-              RAT
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Cline/">
-              Cline
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <h2 id="RAT-思考与响应的解耦"><a href="#RAT-思考与响应的解耦" class="headerlink" title="RAT: 思考与响应的解耦"></a>RAT: 思考与响应的解耦</h2><p><a target="_blank" rel="noopener" href="https://github.com/Doriandarko/RAT-retrieval-augmented-thinking?tab=readme-ov-file">RAT(Retrieval Augmented Thinking)</a> 是由EverArt创始人 <a target="_blank" rel="noopener" href="https://x.com/skirano">Pietro Schirano</a>提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他LLM进行结构化思考， 从而生成更加准确的结果。</p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RAT-%E6%80%9D%E8%80%83%E4%B8%8E%E5%93%8D%E5%BA%94%E7%9A%84%E8%A7%A3%E8%80%A6"><span class="toc-text">RAT: 思考与响应的解耦</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#R1-Sonnet-%E4%BB%A3%E7%A0%81%E9%A2%86%E5%9F%9F%E7%9A%84%E6%A8%A1%E5%9E%8B%E5%8D%8F%E4%BD%9C"><span class="toc-text">R1 + Sonnet: 代码领域的模型协作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DeepSeek-R1-%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%A8%A1%E6%9D%BF"><span class="toc-text">DeepSeek-R1 提示词模板</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PPFO-%E5%9F%BA%E4%BA%8EXML%E7%9A%84R1%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%A8%A1%E6%9D%BF"><span class="toc-text">PPFO:  基于XML的R1提示词模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Python-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E6%A8%A1%E6%9D%BF"><span class="toc-text">Python 代码生成模板</span></a></li></ol></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><h2 id="RAT-思考与响应的解耦"><a href="#RAT-思考与响应的解耦" class="headerlink" title="RAT: 思考与响应的解耦"></a>RAT: 思考与响应的解耦</h2><p><a target="_blank" rel="noopener" href="https://github.com/Doriandarko/RAT-retrieval-augmented-thinking?tab=readme-ov-file">RAT(Retrieval Augmented Thinking)</a> 是由EverArt创始人 <a target="_blank" rel="noopener" href="https://x.com/skirano">Pietro Schirano</a>提出的一种混合LLM生成范式， 其主要思想是利用DeepSeek-R1的推理能力来指导其他LLM进行结构化思考， 从而生成更加准确的结果。</p>
 <p>RAT的想法来源于对DeepSeek-R1 API特性的诗意破解: 在调用 deepseek-reasoner (即DeepSeek-R1) 模型时， 将最终响应token长度设置为1，即可使得推理与最终响应分离。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">self</span>.deepseek_messages.append(&#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: user_input&#125;)</span><br><span class="line">response = <span class="variable language_">self</span>.deepseek_client.chat.completions.create(</span><br><span class="line">	model=DEEPSEEK_MODEL,</span><br><span class="line">	max_tokens=<span class="number">1</span>,</span><br><span class="line">	messages=<span class="variable language_">self</span>.deepseek_messages,</span><br><span class="line">	stream=<span class="literal">True</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 
@@ -149,7 +73,7 @@
 <p>当然， 口说无凭。 真实效果如何， 需要更加客观、严谨的基准测试。</p>
 <h2 id="R1-Sonnet-代码领域的模型协作"><a href="#R1-Sonnet-代码领域的模型协作" class="headerlink" title="R1 + Sonnet: 代码领域的模型协作"></a>R1 + Sonnet: 代码领域的模型协作</h2><p>Aider 是一款基于命令行的AI结对编程工具。1月24日， Aider在其<a target="_blank" rel="noopener" href="https://aider.chat/2025/01/24/r1-sonnet.html">官方博客</a>中宣称，其通过 DeepSeek-R1 和 Claude Sonnet 的模型组合刷新了 polyglot 代码能力基准测试的SOTA 成绩。 (详见  <a target="_blank" rel="noopener" href="https://aider.chat/2025/01/24/r1-sonnet.html">R1+Sonnet set SOTA on aider’s polyglot benchmark</a>)</p>
 <p>在Aider的实验中， R1 被作为 Architect 模型， 用于生成解决问题的路径， 这是推理模型擅长的区域。 Sonnet则被作为Editor 模型，进行具体的代码编辑并应用。 </p>
-<p><a class="simple-lightbox" href="/assets/llm/aider-deepseek-r1-sonnet.png"><img   src="/images/loading.svg" data-src="/assets/llm/aider-deepseek-r1-sonnet.png"  lazyload></a></p>
+<p><img src="/assets/llm/aider-deepseek-r1-sonnet.png"></p>
 <p>R1+Sonnet在 aider polyglot 测试中得到了64%的成绩， 高于 OpenAI O1的 61.7%， 而单独使用R1和Sonnet的成绩分别是56.9%和51.6%。而与前SOTA O1相比， R1 + Sonnet的计算成本节省了14倍。 </p>
 <p>文章中也提到， O1与Sonnet的叠加并没有带来正向提升， 同时， 将Editor模型切换成其他模型也没有带来更多的提升。 与对相对的是， 早期推理模型， 如o1-preview 和 o1-mini， 在与很多Editor模型进行搭配时都有效果上的提升。 </p>
 <p>此外， 文章也指出， 通过将 thinking tokens 注入 Editor 模型的方式实际上效果更差。 </p>
@@ -165,120 +89,42 @@
 <p>Aider博客中提到的这种 R1 + Sonnet 协作方式也在另一款热门的AI编程工具 Cline上得到了推崇。 Cline官方号在其X上写道:</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Sometimes the best patterns emerge from usage, not design.</span><br><span class="line"></span><br><span class="line">&quot;R1&#x27;s reasoning is incredible for planning, then I switch to Sonnet for the actual coding. It&#x27;s not about picking sides - each model has its strengths.&quot;</span><br></pre></td></tr></table></figure>
 
-<p><a class="simple-lightbox" href="/assets/llm/cline-r1-sonnet.jpeg"><img   src="/images/loading.svg" data-src="/assets/llm/cline-r1-sonnet.jpeg"  lazyload></a></p>
+<p><img src="/assets/llm/cline-r1-sonnet.jpeg"></p>
 <p>这种结合R1强大的推理能力和低廉成本， 同时又不丢失Claude 出色的代码编辑能力的组合方式，可以预见会迅速成为AI编程领域的标配。(不知Cursor 何时跟进:))</p>
 <h2 id="DeepSeek-R1-提示词模板"><a href="#DeepSeek-R1-提示词模板" class="headerlink" title="DeepSeek-R1 提示词模板"></a>DeepSeek-R1 提示词模板</h2><h3 id="PPFO-基于XML的R1提示词模板"><a href="#PPFO-基于XML的R1提示词模板" class="headerlink" title="PPFO:  基于XML的R1提示词模板"></a>PPFO:  基于XML的R1提示词模板</h3><p>PPFO(Purpose, Planning, Format, Output) 是 <a target="_blank" rel="noopener" href="https://x.com/cj_zZZz/status/1882829210550681861">@cj_zZZz</a>提出的一套应用于DeepSeek-R1的提示词框架， 它将提示词拆分成目标、计划、格式和输出四个部分， 并以XML格式组织。 提供尽可能多的细节 ， 同时避免在目标与输出部分使用项目列表符号。 </p>
 <p>示例如下:</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">PPFO Framework for Deepseek r1</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">purpose</span>&gt;</span></span><br><span class="line">You are an expert full - stack NextJS developer specializing in building scalable, performant, and maintainable web applications. Your expertise includes server - side rendering (SSR), static site generation (SSG), incremental static regeneration (ISR), and API route optimization. You prioritize clean, idiomatic code and adhere to Next.js best practices, ensuring seamless integration between frontend and backend components. Your goal is to deliver solutions that are not only functional but also optimized for performance, SEO, and user experience.</span><br><span class="line"><span class="tag">&lt;/<span class="name">purpose</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">planning_rules</span>&gt;</span></span><br><span class="line">- Create a 4 - step plan for each task (e.g., setup, implementation, testing, deployment).</span><br><span class="line">- Display the current step clearly.</span><br><span class="line">- Ask for clarification on ambiguous requirements.</span><br><span class="line">- Optimize for NextJS best practices (e.g., SSR, ISR, API routes).</span><br><span class="line"><span class="tag">&lt;/<span class="name">planning_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">format_rules</span>&gt;</span></span><br><span class="line">- Use code blocks for components, API routes, and configuration.</span><br><span class="line">- Split long code into logical sections (e.g., frontend, backend, config).</span><br><span class="line">- Create artifacts for file - level tasks (e.g., `page.tsx`, `api/route.ts`).</span><br><span class="line">- Keep responses brief but complete.</span><br><span class="line"><span class="tag">&lt;/<span class="name">format_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">output</span>&gt;</span></span><br><span class="line">Create responses following these rules. Focus on scalable, performant solutions while maintaining a concise, helpful style.</span><br><span class="line"><span class="tag">&lt;/<span class="name">output</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="Python-代码生成模板"><a href="#Python-代码生成模板" class="headerlink" title="Python 代码生成模板"></a>Python 代码生成模板</h3><p>由 @pyquantnews 提出。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context</span>&gt;</span></span><br><span class="line"></span><br><span class="line">You are an expert programming AI assistant who prioritizes minimalist, efficient code. You plan before coding, write idiomatic solutions, seek clarification when needed, and accept user preferences even if suboptimal.</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">context</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">planning_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">Create 3-step numbered plans before coding</span><br><span class="line">Display current plan step clearly</span><br><span class="line">Ask for clarification on ambiguity</span><br><span class="line">Optimize for minimal code and overhead</span><br><span class="line"><span class="tag">&lt;/<span class="name">planning_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">format_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">Use code blocks for simple tasks</span><br><span class="line">Split long code into sections</span><br><span class="line">Create artifacts for file-level tasks</span><br><span class="line">Keep responses brief but complete</span><br><span class="line"><span class="tag">&lt;/<span class="name">format_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">OUTPUT: Create responses following these rules. Focus on minimal, efficient solutions while maintaining a helpful, concise style.</span><br></pre></td></tr></table></figure>
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#RAT-%E6%80%9D%E8%80%83%E4%B8%8E%E5%93%8D%E5%BA%94%E7%9A%84%E8%A7%A3%E8%80%A6"><span class="top-box-text">RAT: 思考与响应的解耦</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#R1-Sonnet-%E4%BB%A3%E7%A0%81%E9%A2%86%E5%9F%9F%E7%9A%84%E6%A8%A1%E5%9E%8B%E5%8D%8F%E4%BD%9C"><span class="top-box-text">R1 + Sonnet: 代码领域的模型协作</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#DeepSeek-R1-%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%A8%A1%E6%9D%BF"><span class="top-box-text">DeepSeek-R1 提示词模板</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#PPFO-%E5%9F%BA%E4%BA%8EXML%E7%9A%84R1%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%A8%A1%E6%9D%BF"><span class="top-box-text">PPFO:  基于XML的R1提示词模板</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#Python-%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E6%A8%A1%E6%9D%BF"><span class="top-box-text">Python 代码生成模板</span></a></li></ol></li></ol>
-        </div>
-          
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context</span>&gt;</span></span><br><span class="line"></span><br><span class="line">You are an expert programming AI assistant who prioritizes minimalist, efficient code. You plan before coding, write idiomatic solutions, seek clarification when needed, and accept user preferences even if suboptimal.</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">context</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">planning_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">Create 3-step numbered plans before coding</span><br><span class="line">Display current plan step clearly</span><br><span class="line">Ask for clarification on ambiguity</span><br><span class="line">Optimize for minimal code and overhead</span><br><span class="line"><span class="tag">&lt;/<span class="name">planning_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">format_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">Use code blocks for simple tasks</span><br><span class="line">Split long code into sections</span><br><span class="line">Create artifacts for file-level tasks</span><br><span class="line">Keep responses brief but complete</span><br><span class="line"><span class="tag">&lt;/<span class="name">format_rules</span>&gt;</span></span><br><span class="line"></span><br><span class="line">OUTPUT: Create responses following these rules. Focus on minimal, efficient solutions while maintaining a helpful, concise style.</span><br></pre></td></tr></table></figure></div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/DeepSeek-R1/">DeepSeek-R1</a><a href="/tags/Claude-Sonnet/">Claude Sonnet</a><a href="/tags/Aider/">Aider</a><a href="/tags/PPFO/">PPFO</a><a href="/tags/RAT/">RAT</a><a href="/tags/Cline/">Cline</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22%E5%85%B3%E4%BA%8E%20DeepSeek-R1%20%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9C%89%E8%B6%A3%E5%AE%9E%E9%AA%8C%E5%92%8C%E6%8E%A2%E7%B4%A2%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
       </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/28/perspective/trust-civilization/"><span>← 上一篇</span><strong>信任是语言和文明的关键。有组织的谎言会摧毁文明</strong></a><a href="/2025/01/18/rag/multi-vector/"><span>下一篇 →</span><strong>RAG中的多向量检索实践</strong></a></nav>
     </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/18/rag/multi-vector/">
-          <h3 class="post-title">
-            下一篇：RAG中的多向量检索实践
-          </h3>
-        </a>
-      </div>
-    
   </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
-</div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

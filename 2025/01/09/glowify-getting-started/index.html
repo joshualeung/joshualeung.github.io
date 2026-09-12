@@ -1,259 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>Glowify快速上手指南</title>
-<meta name="keywords" content="Glowify快速上手指南, 击壤而歌">
-<meta name="description" content=" Glowify 是什么？
-Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。
-Glowify的主要特性如下:
-
-文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="Glowify快速上手指南">
-<meta property="og:description" content=" Glowify 是什么？
-Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。
-Glowify的主要特性如下:
-
-文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glowify快速上手指南 | 击壤而歌</title>
+  <meta name="description" content="Glowify 是什么？ Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。 Glowify的主要特性如下: 文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论&amp;#x2F;注释。支持自定义字体颜色与背景色。 上下文感知的单词、短语及句子翻译。”…">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="Glowify快速上手指南">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2025/01/09/glowify-getting-started/">
+  <meta property="og:description" content="Glowify 是什么？ Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。 Glowify的主要特性如下: 文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论&amp;#x2F;注释。支持自定义字体颜色与背景色。 上下文感知的单词、短语及句子翻译。”…">
+  <link rel="canonical" href="http://orrrrz.github.io/2025/01/09/glowify-getting-started/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>Glowify快速上手指南</h1>
+    
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">Or4z</span><div class="post-meta"><time datetime="2025-01-09">2025年1月9日</time><span class="meta-dot">·</span><span>6 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">Glowify快速上手指南</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2025-01-09</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/Glowify/">
-              Glowify
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Chrome%E6%8F%92%E4%BB%B6/">
-              Chrome插件
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/AI%E5%B7%A5%E5%85%B7/">
-              AI工具
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <h2 id="glowify-是什么"><a class="markdownIt-Anchor" href="#glowify-是什么"></a> Glowify 是什么？</h2>
-<p>Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。</p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Glowify-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">Glowify 是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85"><span class="toc-text">如何安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-GWS-%E5%AE%89%E8%A3%85"><span class="toc-text">通过 GWS 安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-text">手动安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8"><span class="toc-text">开始使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-text">使用技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#URL%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-text">URL白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%A7%E9%9D%A2%E6%9D%BF"><span class="toc-text">侧面板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Notion-%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="toc-text">Notion 数据同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA-Notion-%E9%9B%86%E6%88%90%EF%BC%9A"><span class="toc-text">创建 Notion 集成：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-Glowify"><span class="toc-text">配置 Glowify</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-Prompt"><span class="toc-text">自定义 Prompt</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="toc-text">常见问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E9%A6%88"><span class="toc-text">反馈</span></a></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><h2 id="Glowify-是什么？"><a href="#Glowify-是什么？" class="headerlink" title="Glowify 是什么？"></a>Glowify 是什么？</h2><p>Glowify 是一款开源、免费的Chrome浏览器插件，它的定位是一个在线阅读小助手，能够大大提升你的在线阅读体验。</p>
 <p>Glowify的主要特性如下:</p>
 <ul>
-<li>文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论/注释。支持自定义字体颜色与背景色。</li>
-<li>上下文感知的单词、短语及句子翻译。&quot;上下文感知&quot;是指，可以很好地处理歧义的问题，使得翻译的结果尽可能与其上下文语境一致。此外， Glowify还支持英文单词和短语的发音（通过有道词典接口提供)。</li>
+<li>文本高亮与标注。 你可以对选中的文本进行高亮， 并添加评论&#x2F;注释。支持自定义字体颜色与背景色。 </li>
+<li>上下文感知的单词、短语及句子翻译。”上下文感知”是指，可以很好地处理歧义的问题，使得翻译的结果尽可能与其上下文语境一致。此外， Glowify还支持英文单词和短语的发音（通过有道词典接口提供)。</li>
 <li>轻松解释陌生概念及语法知识，让未知的句法、语法、概念都不再成为阻断阅读流畅性的绊脚石。</li>
-<li>翻译及解释均由AI大模型驱动。如果你略懂一点AI的话， 它支持通义千问、DeepSeek、Kimi、OpenAI及扣子工作流（延迟较高不太推荐），同时也支持自定义Prompt。例如， 如果你想让Glowify在提供翻译的同时， 讲解句子涉及到的语法知识点或者文化背景， 均可以通过自定义Prompt实现。</li>
-<li>默认情况下， 所有的Glowify数据（包括高亮、标注、翻译和解释）均存储在浏览器本地。你也可以选择将数据同步到Notion笔记软件。 同步到Notion的好处是， 数据不会因为你卸载插件或者浏览器、更换电脑而丢失。而且， 利用Notion广泛的多端支持能力、灵活的数据库视图，你可以在其App以更加好友的方式统一查看笔记。甚至开发自己的笔记可视化应用。</li>
+<li>翻译及解释均由AI大模型驱动。如果你略懂一点AI的话， 它支持通义千问、DeepSeek、Kimi、OpenAI及扣子工作流（延迟较高不太推荐），同时也支持自定义Prompt。例如， 如果你想让Glowify在提供翻译的同时， 讲解句子涉及到的语法知识点或者文化背景， 均可以通过自定义Prompt实现。 </li>
+<li>默认情况下， 所有的Glowify数据（包括高亮、标注、翻译和解释）均存储在浏览器本地。你也可以选择将数据同步到Notion笔记软件。 同步到Notion的好处是， 数据不会因为你卸载插件或者浏览器、更换电脑而丢失。而且， 利用Notion广泛的多端支持能力、灵活的数据库视图，你可以在其App以更加好友的方式统一查看笔记。甚至开发自己的笔记可视化应用。 </li>
 <li>Glowify不会收集任何用户隐私， 甚至没有服务器。</li>
 </ul>
-<a class="simple-lightbox" href="/assets/glowify/glowify-demo-2.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-demo-2.png"  alt="Glowify 使用截图" style="width: 80%;" lazyload></a>
-<h2 id="如何安装"><a class="markdownIt-Anchor" href="#如何安装"></a> 如何安装</h2>
-<p>安装 Glowify 有两种方式：通过 GWS(Chrome Web Store) 安装或者手动安装。</p>
-<h3 id="通过-gws-安装"><a class="markdownIt-Anchor" href="#通过-gws-安装"></a> 通过 GWS 安装</h3>
-<p>这是安装 Glowify 的最快捷方式，但前提是，你的电脑能够访问 Google。如果不能， 并且也不会魔法上网，请使用手动安装的方式。</p>
+<img src="/assets/glowify/glowify-demo-2.png" alt="Glowify 使用截图" style="width: 80%;">
+
+<h2 id="如何安装"><a href="#如何安装" class="headerlink" title="如何安装"></a>如何安装</h2><p>安装 Glowify 有两种方式：通过 GWS(Chrome Web Store) 安装或者手动安装。</p>
+<h3 id="通过-GWS-安装"><a href="#通过-GWS-安装" class="headerlink" title="通过 GWS 安装"></a>通过 GWS 安装</h3><p>这是安装 Glowify 的最快捷方式，但前提是，你的电脑能够访问 Google。如果不能， 并且也不会魔法上网，请使用手动安装的方式。</p>
 <ol>
 <li>进入Chrome浏览器器， 复制以下网址并打开， 进入Glowify的Google应用商店页面, 或者直接点击 <a target="_blank" rel="noopener" href="https://chromewebstore.google.com/detail/glowify-your-reading-assi/cponpggghojjgjglfpcagclobgcghjig">这里</a> 打开:</li>
 </ol>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://chromewebstore.google.com/detail/glowify-your-reading-assi/cponpggghojjgjglfpcagclobgcghjig </span><br></pre></td></tr></table></figure>
+
 <ol start="2">
 <li>点击 “Add to Chrome”。</li>
 </ol>
 <p>安装完成。</p>
-<h3 id="手动安装"><a class="markdownIt-Anchor" href="#手动安装"></a> 手动安装</h3>
-<p>手动安装适合不能魔法上网， 或者希望自己通过修改代码来定制插件行为的用户。</p>
-<h4 id="手动安装方式一-通过压缩包安装"><a class="markdownIt-Anchor" href="#手动安装方式一-通过压缩包安装"></a> 手动安装方式一: 通过压缩包安装</h4>
-<ol>
-<li>
-<p>下载 Glowify 插件压缩包, 点击 <a href="/downloads/glowify-v1.0.3.zip">此处</a> 下载。</p>
+<h3 id="手动安装"><a href="#手动安装" class="headerlink" title="手动安装"></a>手动安装</h3><p>手动安装适合不能魔法上网， 或者希望自己通过修改代码来定制插件行为的用户。 </p>
+<h4 id="手动安装方式一-通过压缩包安装"><a href="#手动安装方式一-通过压缩包安装" class="headerlink" title="手动安装方式一: 通过压缩包安装"></a>手动安装方式一: 通过压缩包安装</h4><ol>
+<li><p>下载 Glowify 插件压缩包, 点击 <a href="/downloads/glowify-v1.0.3.zip">此处</a> 下载。</p>
 </li>
-<li>
-<p>将下载下来的压缩包解压至任意目录。</p>
+<li><p>将下载下来的压缩包解压至任意目录。</p>
 </li>
-<li>
-<p>打开 Chrome浏览器， 在地址栏上输入 <code>chrome://extensions</code></p>
+<li><p>打开 Chrome浏览器， 在地址栏上输入 <code>chrome://extensions</code></p>
 </li>
-<li>
-<p>点击右上角的按钮， 开启『开发者模式』</p>
+<li><p>点击右上角的按钮， 开启『开发者模式』</p>
 </li>
 </ol>
-<a class="simple-lightbox" href="/assets/glowify/glowify-chrome-dev-mode.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-chrome-dev-mode.png"  style="max-width: 80%;" lazyload></a>
+<img src="/assets/glowify/glowify-chrome-dev-mode.png" style="max-width: 80%;"/>
+
 <ol start="5">
 <li>打开开发者模式后， 左上角会出现一些新的按钮， 点击『加载已解压的扩展程序』</li>
 </ol>
-<a class="simple-lightbox" href="/assets/glowify/glowify-load-unpacked-ext.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-load-unpacked-ext.png"  style="max-width: 80%;" lazyload></a>
+<img src="/assets/glowify/glowify-load-unpacked-ext.png" style="max-width: 80%;"/>
+
 <ol start="6">
 <li>选择步骤2中的解压目录， 点击『选择』。</li>
 </ol>
 <p>安装完成。</p>
-<h4 id="手动安装方式二-通过github源码安装"><a class="markdownIt-Anchor" href="#手动安装方式二-通过github源码安装"></a> 手动安装方式二: 通过Github源码安装</h4>
-<p>如果你会使用Git和Github, 你已经知道怎么做了。直接加载 Glowify 源码根目录即可。在此不赘言。</p>
-<h2 id="准备工作"><a class="markdownIt-Anchor" href="#准备工作"></a> 准备工作</h2>
-<p>你已经成功安装了Glowify, 但要正常使用Glowify, 你还需要一个大模型的API Key。不用担心， 这一步非常简单。</p>
+<h4 id="手动安装方式二-通过Github源码安装"><a href="#手动安装方式二-通过Github源码安装" class="headerlink" title="手动安装方式二: 通过Github源码安装"></a>手动安装方式二: 通过Github源码安装</h4><p>如果你会使用Git和Github, 你已经知道怎么做了。直接加载 Glowify 源码根目录即可。在此不赘言。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>你已经成功安装了Glowify, 但要正常使用Glowify, 你还需要一个大模型的API Key。不用担心， 这一步非常简单。 </p>
 <p>大模型供应商的选择非常多。在中国大陆， 你可以选择Kimi, 阿里云或者DeepSeek， 国外则可以选择OpenAI。</p>
-<p>以Kimi为例， 进入 <a target="_blank" rel="noopener" href="http://platform.moonshot.cn">platform.moonshot.cn</a> 并注册后， 进入『用户中心』，选择『API Key 管理』， 点击『新建』即可创建一个 API Key。注意保存好你的API Key。</p>
+<p>以Kimi为例， 进入 platform.moonshot.cn 并注册后， 进入『用户中心』，选择『API Key 管理』， 点击『新建』即可创建一个 API Key。注意保存好你的API Key。</p>
 <p>回到Chrome, 确保Glowify的图标已经显示在了右上角的工具栏上， 如下图示:</p>
-<a class="simple-lightbox" href="/assets/glowify/glowify-chrome-icon.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-chrome-icon.png"  style="max-width: 80%;" lazyload></a>
+<img src="/assets/glowify/glowify-chrome-icon.png" style="max-width: 80%;"/>
+
 <p>如果没有的到Glowify, 一般是因为浏览器默认把它折叠了。 可以点击拼图按钮，然后找到Glowify, 再点击Pin按钮即可。 如下图示:</p>
-<a class="simple-lightbox" href="/assets/glowify/glowify-pin-icon.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-pin-icon.png"  style="max-width: 80%;" lazyload></a>
+<img src="/assets/glowify/glowify-pin-icon.png" style="max-width: 80%;"/>
+
 <p>在Glowify图标上， 点击鼠标右键， 进入选项设置页面。</p>
-<a class="simple-lightbox" href="/assets/glowify/glowify-options.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-options.png"  style="max-width: 80%;" lazyload></a>
-<p>在选项设置页面， 选择 LLM 提供商， 填写你申请的 API Key, 选择目标语言， 然后拉到页面最底下， 点击 “Save” 即可。</p>
-<a class="simple-lightbox" href="/assets/glowify/glowify-option-page.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-option-page.png"  style="max-width: 80%;" lazyload></a>
+<img src="/assets/glowify/glowify-options.png" style="max-width: 80%;"/>
+
+<p>在选项设置页面， 选择 LLM 提供商， 填写你申请的 API Key, 选择目标语言， 然后拉到页面最底下， 点击 “Save” 即可。 </p>
+<img src="/assets/glowify/glowify-option-page.png" style="max-width: 80%;"/>
+
 <p>配置完成。</p>
-<h2 id="开始使用"><a class="markdownIt-Anchor" href="#开始使用"></a> 开始使用</h2>
-<p>默认情况下， Glowify在所有网页上是默认关闭的（避免过度打扰用户）。若想在当前网页启用 Glowify, 只需要点击一次 “Glowify” 图标即可。 此时， Glowify 图标会出现一个 “ON” 的标记， 表示在当前网页上启用。</p>
-<a class="simple-lightbox" href="/assets/glowify/glowify-status-badge.png"><img   src="/images/loading.svg" data-src="/assets/glowify/glowify-status-badge.png"  style="max-width: 80%;" lazyload></a>
+<h2 id="开始使用"><a href="#开始使用" class="headerlink" title="开始使用"></a>开始使用</h2><p>默认情况下， Glowify在所有网页上是默认关闭的（避免过度打扰用户）。若想在当前网页启用 Glowify, 只需要点击一次 “Glowify” 图标即可。 此时， Glowify 图标会出现一个 “ON” 的标记， 表示在当前网页上启用。 </p>
+<img src="/assets/glowify/glowify-status-badge.png" style="max-width: 80%;"/>
+
 <p>开启 Glowify 后， 选择任意文本便会弹出 Glowify 的工具栏。 工具栏上的按钮功能依次为 解释、翻译、高亮、评论、复制。 点击按钮即可执行对应功能。</p>
 <p>祝你阅读愉快！</p>
-<h2 id="使用技巧"><a class="markdownIt-Anchor" href="#使用技巧"></a> 使用技巧</h2>
-<h3 id="url白名单"><a class="markdownIt-Anchor" href="#url白名单"></a> URL白名单</h3>
-<p>Glowify 默认在所有网页上是关闭的， 需要点击其工具栏图标启用。若希望在部分网页上默认开启Glowify, 可以将其添加到白名单中。点击 Glowify 图标， 然后点击 “Options” 按钮， 在 “URL Whitelist” 中添加你希望Glowify启用的URL。 支持通配符。如下所示:</p>
+<h2 id="使用技巧"><a href="#使用技巧" class="headerlink" title="使用技巧"></a>使用技巧</h2><h3 id="URL白名单"><a href="#URL白名单" class="headerlink" title="URL白名单"></a>URL白名单</h3><p>Glowify 默认在所有网页上是关闭的， 需要点击其工具栏图标启用。若希望在部分网页上默认开启Glowify, 可以将其添加到白名单中。点击 Glowify 图标， 然后点击 “Options” 按钮， 在 “URL Whitelist” 中添加你希望Glowify启用的URL。 支持通配符。如下所示:</p>
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://x.com/*</span><br><span class="line">https://gulfnews.com/*</span><br><span class="line">https://www.bbc.com/news/articles/*</span><br></pre></td></tr></table></figure>
-<h3 id="侧面板"><a class="markdownIt-Anchor" href="#侧面板"></a> 侧面板</h3>
-<p>在网页上打开右键菜单， 通过 “Glowify” -&gt; “Show All Glows” 打开侧面板。 侧面板中， 你可以查看所有Glowify笔记， 包括高亮、翻译、解释、评论等。点击笔记， 页面会自动定位到对应的位置。 在侧面板的底部， 可以隐藏、显示、删除或者导出所有笔记。</p>
-<h3 id="notion-数据同步"><a class="markdownIt-Anchor" href="#notion-数据同步"></a> Notion 数据同步</h3>
-<p>为了与Notion数据库同步， 你需要创建一个用于存储Glowify笔记的Notion数据库以及一个Notion集成。</p>
-<h4 id="创建-notion-数据库"><a class="markdownIt-Anchor" href="#创建-notion-数据库"></a> 创建 Notion 数据库</h4>
-<h4 id="方式一-通过复制glowify数据库模板创建"><a class="markdownIt-Anchor" href="#方式一-通过复制glowify数据库模板创建"></a> 方式一: 通过复制Glowify数据库模板创建</h4>
-<p>打开 <a target="_blank" rel="noopener" href="https://www.notion.so/ce34483fe9d048a380d850d682fae25d?v=fff36e411feb814b8b80000c46bb500a">Glowify Notion 数据库模板</a>, 点击右上角的按钮， 在弹出的菜单中选择 “Duplicate” 按钮， 即可复制一个Glowify数据库模板。</p>
-<h4 id="方式二-手动创建"><a class="markdownIt-Anchor" href="#方式二-手动创建"></a> 方式二: 手动创建</h4>
-<table>
+
+<h3 id="侧面板"><a href="#侧面板" class="headerlink" title="侧面板"></a>侧面板</h3><p>在网页上打开右键菜单， 通过 “Glowify” -&gt; “Show All Glows” 打开侧面板。 侧面板中， 你可以查看所有Glowify笔记， 包括高亮、翻译、解释、评论等。点击笔记， 页面会自动定位到对应的位置。 在侧面板的底部， 可以隐藏、显示、删除或者导出所有笔记。 </p>
+<h3 id="Notion-数据同步"><a href="#Notion-数据同步" class="headerlink" title="Notion 数据同步"></a>Notion 数据同步</h3><p>为了与Notion数据库同步， 你需要创建一个用于存储Glowify笔记的Notion数据库以及一个Notion集成。</p>
+<h4 id="创建-Notion-数据库"><a href="#创建-Notion-数据库" class="headerlink" title="创建 Notion 数据库"></a>创建 Notion 数据库</h4><h4 id="方式一-通过复制Glowify数据库模板创建"><a href="#方式一-通过复制Glowify数据库模板创建" class="headerlink" title="方式一: 通过复制Glowify数据库模板创建"></a>方式一: 通过复制Glowify数据库模板创建</h4><p>打开 <a target="_blank" rel="noopener" href="https://www.notion.so/ce34483fe9d048a380d850d682fae25d?v=fff36e411feb814b8b80000c46bb500a">Glowify Notion 数据库模板</a>, 点击右上角的按钮， 在弹出的菜单中选择 “Duplicate” 按钮， 即可复制一个Glowify数据库模板。</p>
+<h4 id="方式二-手动创建"><a href="#方式二-手动创建" class="headerlink" title="方式二: 手动创建"></a>方式二: 手动创建</h4><table>
 <thead>
 <tr>
-<th style="text-align:center">字段名</th>
-<th style="text-align:center">类型</th>
+<th align="center">字段名</th>
+<th align="center">类型</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center"><div style="width: 200px;">excerpt</div></td>
-<td style="text-align:center"><div style="width: 100px;">title</div></td>
+<tbody><tr>
+<td align="center"><div style="width: 200px;">excerpt</div></td>
+<td align="center"><div style="width: 100px;">title</div></td>
 </tr>
 <tr>
-<td style="text-align:center"><div style="width: 200px;">pageUrl</div></td>
-<td style="text-align:center"><div style="width: 100px;">url</div></td>
+<td align="center"><div style="width: 200px;">pageUrl</div></td>
+<td align="center"><div style="width: 100px;">url</div></td>
 </tr>
 <tr>
-<td style="text-align:center">highlightId</td>
-<td style="text-align:center">rich_text</td>
+<td align="center">highlightId</td>
+<td align="center">rich_text</td>
 </tr>
 <tr>
-<td style="text-align:center">pageTitle</td>
-<td style="text-align:center">rich_text</td>
+<td align="center">pageTitle</td>
+<td align="center">rich_text</td>
 </tr>
 <tr>
-<td style="text-align:center">comment</td>
-<td style="text-align:center">rich_text</td>
+<td align="center">comment</td>
+<td align="center">rich_text</td>
 </tr>
 <tr>
-<td style="text-align:center">created</td>
-<td style="text-align:center">date</td>
+<td align="center">created</td>
+<td align="center">date</td>
 </tr>
 <tr>
-<td style="text-align:center">updated</td>
-<td style="text-align:center">date</td>
+<td align="center">updated</td>
+<td align="center">date</td>
 </tr>
 <tr>
-<td style="text-align:center">occurrence</td>
-<td style="text-align:center">rich_text</td>
+<td align="center">occurrence</td>
+<td align="center">rich_text</td>
 </tr>
-</tbody>
-</table>
-<h3 id="创建-notion-集成"><a class="markdownIt-Anchor" href="#创建-notion-集成"></a> 创建 Notion 集成：</h3>
-<p>访问 Notion Integration 页面。<br />
-点击“创建新集成”并获取您的 API 密钥。<br />
-关联 Notion 数据库。</p>
-<h3 id="配置-glowify"><a class="markdownIt-Anchor" href="#配置-glowify"></a> 配置 Glowify</h3>
-<ul>
+</tbody></table>
+<h3 id="创建-Notion-集成："><a href="#创建-Notion-集成：" class="headerlink" title="创建 Notion 集成："></a>创建 Notion 集成：</h3><p>访问 Notion Integration 页面。<br>点击“创建新集成”并获取您的 API 密钥。<br>关联 Notion 数据库。</p>
+<h3 id="配置-Glowify"><a href="#配置-Glowify" class="headerlink" title="配置 Glowify"></a>配置 Glowify</h3><ul>
 <li>打开 Glowify 选项页面。</li>
 <li>勾选 “Save to Notion” 选项。</li>
 <li>输入您的 Notion 数据库 ID 和 API 密钥。</li>
 <li>点击“保存”以完成设置。</li>
 </ul>
-<h3 id="自定义-prompt"><a class="markdownIt-Anchor" href="#自定义-prompt"></a> 自定义 Prompt</h3>
-<p>对于 Glowify 的翻译和解释功能， 你可以通过自定义 Prompt 来定制Glowify的输出行为。</p>
+<h3 id="自定义-Prompt"><a href="#自定义-Prompt" class="headerlink" title="自定义 Prompt"></a>自定义 Prompt</h3><p>对于 Glowify 的翻译和解释功能， 你可以通过自定义 Prompt 来定制Glowify的输出行为。</p>
 <p>进入 Glowify 选项页面，可以看到以下4个Prompt自定义字段:</p>
 <ul>
 <li><code>System Prompt for Translate</code>: 翻译System Prompt</li>
@@ -261,7 +182,7 @@ Glowify的主要特性如下:
 <li><code>User Prompt for Translate</code>: 翻译User Prompt</li>
 <li><code>User Prompt for Explain</code>: 解释User Prompt</li>
 </ul>
-<p>在System Prompt中， 你可以对输出的内容、格式、风格等进行定制。 例如， 你可以告诉LLM, 在翻译时， 除了给出翻译结果， 还给出涉及的相关语法知识点以及背景知识。</p>
+<p>在System Prompt中， 你可以对输出的内容、格式、风格等进行定制。 例如， 你可以告诉LLM, 在翻译时， 除了给出翻译结果， 还给出涉及的相关语法知识点以及背景知识。 </p>
 <p>User Prompt主要与数据输入格式有关， 不建议修改。</p>
 <p>在Prompt中， 你可以引用一些变量， 可用的变量如下:</p>
 <ul>
@@ -269,8 +190,7 @@ Glowify的主要特性如下:
 <li><code>&#123;&#123;context&#125;&#125;</code>: 选中的文本的上下文</li>
 <li><code>&#123;&#123;language&#125;&#125;</code>: 目标语言</li>
 </ul>
-<h2 id="常见问题"><a class="markdownIt-Anchor" href="#常见问题"></a> 常见问题</h2>
-<ol>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><ol>
 <li>如果在选择了文本后， Glowify的工具栏没有弹出， 可能原因:</li>
 </ol>
 <ul>
@@ -286,55 +206,14 @@ Glowify的主要特性如下:
 <li>API Key 没有配置、错误、失效或者过期。</li>
 <li>Glowify 没有识别和定位出选中文本信息。这种情况属于Glowify的bug， 请向我反馈。</li>
 </ul>
-<h2 id="反馈"><a class="markdownIt-Anchor" href="#反馈"></a> 反馈</h2>
-<p>如果你有任何问题， 或者对Glowify有任何建议， 请通过 <a target="_blank" rel="noopener" href="https://github.com/orrrrz/glowify/issues">Github Issue</a> 或者 <a href="mailto:lcm.hust@gmail.com">Email</a> 联系我。</p>
+<h2 id="反馈"><a href="#反馈" class="headerlink" title="反馈"></a>反馈</h2><p>如果你有任何问题， 或者对Glowify有任何建议， 请通过 <a target="_blank" rel="noopener" href="https://github.com/orrrrz/glowify/issues">Github Issue</a> 或者 <a href="mailto:&#108;&#x63;&#109;&#46;&#x68;&#117;&#x73;&#116;&#64;&#103;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#109;">Email</a> 联系我。</p>
 <!-- ## 产品截图
 ![英文翻译](assets/glowify-demo-1.png) -->
+
+
+
 <!-- ![评论](assets/glowify-demo-3.png) -->
 
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#glowify-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="top-box-text"> Glowify 是什么？</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85"><span class="top-box-text"> 如何安装</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E9%80%9A%E8%BF%87-gws-%E5%AE%89%E8%A3%85"><span class="top-box-text"> 通过 GWS 安装</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="top-box-text"> 手动安装</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="top-box-text"> 准备工作</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8"><span class="top-box-text"> 开始使用</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="top-box-text"> 使用技巧</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#url%E7%99%BD%E5%90%8D%E5%8D%95"><span class="top-box-text"> URL白名单</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BE%A7%E9%9D%A2%E6%9D%BF"><span class="top-box-text"> 侧面板</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#notion-%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="top-box-text"> Notion 数据同步</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%88%9B%E5%BB%BA-notion-%E9%9B%86%E6%88%90"><span class="top-box-text"> 创建 Notion 集成：</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E9%85%8D%E7%BD%AE-glowify"><span class="top-box-text"> 配置 Glowify</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89-prompt"><span class="top-box-text"> 自定义 Prompt</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="top-box-text"> 常见问题</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%8F%8D%E9%A6%88"><span class="top-box-text"> 反馈</span></a></li></ol>
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2025/01/09/reports/photos_moods_algorithms/">
-          <h3 class="post-title">
-            下一篇：视觉情感计算前沿综述：从心理机制建构到个性化算法范式
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
 
 
 
@@ -342,62 +221,35 @@ Glowify的主要特性如下:
 
 
 
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/Glowify/">Glowify</a><a href="/tags/Chrome%E6%8F%92%E4%BB%B6/">Chrome插件</a><a href="/tags/AI%E5%B7%A5%E5%85%B7/">AI工具</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22Glowify%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2025/01/10/rag/query-rewrite-hyde/"><span>← 上一篇</span><strong>RAG Query改写系列1: HyDE</strong></a><a href="/2025/01/09/reports/photos_moods_algorithms/"><span>下一篇 →</span><strong>视觉情感计算前沿综述：从心理机制建构到个性化算法范式</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-

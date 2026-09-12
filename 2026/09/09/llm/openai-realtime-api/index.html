@@ -1,129 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    
-
-    
-<script>!function(){var e=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,t=localStorage.getItem("use-color-scheme")||"auto";("dark"===t||e&&"light"!==t)&&document.documentElement.classList.toggle("dark",!0)}()</script>
-    
-
-<meta charset="utf-8" >
-
-<title>OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入</title>
-<meta name="keywords" content="OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入, 击壤而歌">
-<meta name="description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:title" content="OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入">
-<meta property="og:description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
-
-<link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="/style/main.css">
-
-  <!-- hexo injector head_end start -->
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入 | 击壤而歌</title>
+  <meta name="description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2026/09/09/llm/openai-realtime-api/">
+  <meta property="og:description" content="基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。">
+  <link rel="canonical" href="http://orrrrz.github.io/2026/09/09/llm/openai-realtime-api/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><link rel="stylesheet" href="/style/simple-lightbox.min.css"><meta name="generator" content="Hexo 7.3.0"></head>
-  <body>
-    <div id="app" class="main">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
 
-<div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="http://orrrrz.github.io">
-        <img class="avatar" src="/images/avatar.png" alt="logo" width="32px" height="32px">
-      </a>
-      <a href="http://orrrrz.github.io">
-        <h1 class="site-title">击壤而歌</h1>
-      </a>
-    </div>
-    <div class="right">
-        <i class="icon menu-switch icon-menu-outline" ></i>
-    </div>
-  </div>
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入</h1>
+    <p class="article-deck">基于 OpenAI 当前官方文档，解释原生语音对话、轮次检测、打断与工具调用，梳理 GPT-Realtime-2.1 的限制和计费，并提供可下载的 WebRTC 接入示例。</p>
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2026-09-09">2026年9月9日</time><span class="meta-dot">·</span><span>16 分钟阅读</span></div>
 </div>
-
-<div class="menu-container" style="height: 0;opacity: 0;">
-<nav class="menu-list">
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
   
-    
-      <a href="/" class="menu purple-link">
-        首页
-      </a>
-    
-  
-    
-      <a href="/tags" class="menu purple-link">
-        标签
-      </a>
-    
-  
-    
-      <a href="/archives" class="menu purple-link">
-        归档
-      </a>
-    
-  
-    
-      <a href="/about" class="menu purple-link">
-        关于
-      </a>
-    
-  
-</nav>
-</div>
-
-
-
-  <div class="content-container">
-    <div class="post-detail">
-      
-      <h2 class="post-title">OpenAI Realtime API 详解：端到端语音对话的原理、能力与接入</h2>
-      <div class="post-info post-detail-info">
-        <span><i class="icon icon-calendar-outline"></i> 2026-09-09</span>
-        
-          <span>
-          <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="/tags/LLM/">
-              LLM
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/OpenAI/">
-              OpenAI
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/%E8%AF%AD%E9%9F%B3%E4%BA%A4%E4%BA%92/">
-              语音交互
-                
-                  ，
-                
-              </a>
-            
-              <a href="/tags/Realtime-API/">
-              Realtime API
-                
-              </a>
-            
-          </span>
-        
-      </div>
-      <div class="post-content-wrapper">
-        <div class="post-content">
-          <p>OpenAI 面向开发者的端到端语音对话入口是 <strong>Realtime API</strong>：应用建立持续连接，向模型传入声音，再接收模型生成的声音与控制事件。它适合能够接话、被打断、查询信息并执行工具的语音助手。</p>
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-text">端到端语音对话的含义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E4%B8%B2%E8%81%94%E7%B3%BB%E7%BB%9F%E5%88%B0%E5%8E%9F%E7%94%9F%E9%9F%B3%E9%A2%91%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="toc-text">从串联系统到原生音频输入输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%B6%E8%BF%9F%E6%9D%A5%E8%87%AA%E6%95%B4%E4%B8%AA%E4%BA%A4%E4%BA%92%E9%93%BE%E8%B7%AF"><span class="toc-text">延迟来自整个交互链路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E8%83%BD%E5%8A%9B%E8%8C%83%E5%9B%B4"><span class="toc-text">模型与接口的能力范围</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E4%B8%93%E9%A1%B9%E9%9F%B3%E9%A2%91%E6%8E%A5%E5%8F%A3"><span class="toc-text">对话模型与专项音频接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%93%E5%89%8D%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B"><span class="toc-text">当前对话模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E9%9F%B3%E8%A1%A8%E7%8E%B0%E4%B8%8E%E6%8E%A8%E7%90%86%E9%85%8D%E7%BD%AE"><span class="toc-text">语音表现与推理配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%BD%AE%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-text">一轮语音对话的执行过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D%E3%80%81%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%9B%9E%E7%AD%94"><span class="toc-text">会话、历史与回答</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E8%AF%B4%E5%AE%8C"><span class="toc-text">判断用户是否说完</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%8F%92%E8%AF%9D%E5%90%8E%E7%9A%84%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%8E%86%E5%8F%B2%E5%90%8C%E6%AD%A5"><span class="toc-text">用户插话后的音频与历史同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%AE%8C%E6%88%90%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%88%90%E5%8A%9F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">事件完成与业务成功的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F"><span class="toc-text">三种连接方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebRTC-%E6%9C%80%E5%B0%8F%E6%8E%A5%E5%85%A5%E7%A4%BA%E4%BE%8B"><span class="toc-text">WebRTC 最小接入示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E5%87%86%E5%A4%87"><span class="toc-text">运行准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BB%BA%E7%AB%8B%E4%BC%9A%E8%AF%9D"><span class="toc-text">服务端建立会话</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%A0%E8%BE%93%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%A4%84%E7%90%86%E4%BA%8B%E4%BB%B6"><span class="toc-text">浏览器传输音频与处理事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E5%87%AD%E8%AF%81%E4%B8%8E-Agents-SDK"><span class="toc-text">临时凭证与 Agents SDK</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E4%B8%8E%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90"><span class="toc-text">工具调用与业务系统集成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BE%B9%E7%95%8C"><span class="toc-text">函数调用的执行边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A7%E5%88%B6%E8%BF%9E%E6%8E%A5"><span class="toc-text">服务端控制连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E9%99%90%E5%88%B6%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D"><span class="toc-text">使用限制与工程取舍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D%E6%97%B6%E9%95%BF%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8D%E6%98%AF%E6%B0%B8%E4%B9%85%E8%AE%B0%E5%BF%86"><span class="toc-text">会话时长与上下文不是永久记忆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9F%B3%E9%A2%91%E6%A0%BC%E5%BC%8F%E3%80%81%E9%9F%B3%E8%89%B2%E4%B8%8E%E5%AD%97%E5%B9%95"><span class="toc-text">音频格式、音色与字幕</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%86%E5%88%AB%E5%87%86%E7%A1%AE%E6%80%A7%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%A3%B0%E5%AD%A6%E6%9D%A1%E4%BB%B6"><span class="toc-text">识别准确性与设备声学条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="toc-text">权限、数据与服务可用性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%90%E6%9C%AC%E4%BC%B0%E7%AE%97%E4%B8%8E%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="toc-text">成本估算与验证方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%93%E5%89%8D%E4%BB%B7%E6%A0%BC"><span class="toc-text">当前价格</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E9%9F%B3%E9%A2%91%E6%97%B6%E9%95%BF%E5%88%B0%E5%A2%9E%E9%87%8F%E6%88%90%E6%9C%AC"><span class="toc-text">从音频时长到增量成本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A5%E5%AE%9E%E9%99%85%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BD%95%E9%AA%8C%E8%AF%81%E6%96%B9%E6%A1%88"><span class="toc-text">以实际会话记录验证方案</span></a></li></ol></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><p>OpenAI 面向开发者的端到端语音对话入口是 <strong>Realtime API</strong>：应用建立持续连接，向模型传入声音，再接收模型生成的声音与控制事件。它适合能够接话、被打断、查询信息并执行工具的语音助手。</p>
 <p>截至 <strong>2026 年 9 月 9 日</strong>，官方语音开发指南采用 <code>gpt-realtime-2.1</code> 作为对话示例模型。本文依据这一版本的文档介绍接口，附带 WebRTC 示例；模型价格和可用性以实际接入时的官方页面及项目权限为准。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/realtime">Realtime 概览</a></p>
 <span id="more"></span>
 
 <h2 id="端到端语音对话的含义"><a href="#端到端语音对话的含义" class="headerlink" title="端到端语音对话的含义"></a>端到端语音对话的含义</h2><h3 id="从串联系统到原生音频输入输出"><a href="#从串联系统到原生音频输入输出" class="headerlink" title="从串联系统到原生音频输入输出"></a>从串联系统到原生音频输入输出</h3><p>传统语音助手通常包含三个主要阶段：自动语音识别（ASR）把声音转换为文字，大语言模型（LLM）生成回答文字，语音合成（TTS）再将文字转换为声音。三个阶段可以分别流式运行，但应用需要协调识别结果、回答生成和音频播放。</p>
 <p>原生语音路线由同一个对话模型直接处理音频输入和音频输出，应用不必先取得完整转写再提交给文字模型。OpenAI 将这一路线用于自然、低延迟的交谈；需要检查中间文字、复用既有文字助手的系统，则仍可采用串联架构。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/voice-agents">语音架构说明</a></p>
 <p>从信息传递的角度看，音频包含语调、节奏和停顿，直接输入音频使模型有机会利用普通文字转写没有呈现的线索。这是架构上的解释，不能据此推导模型能够准确判断说话者的真实情绪。</p>
-<p><a class="simple-lightbox" href="/assets/llm/openai-realtime-architecture.svg"><img   src="/images/loading.svg" data-src="/assets/llm/openai-realtime-architecture.svg"  alt="串联语音架构与 Realtime 原生语音架构对比，以及浏览器、应用服务器和 OpenAI 之间的数据流" lazyload></a></p>
+<p><img src="/assets/llm/openai-realtime-architecture.svg" alt="串联语音架构与 Realtime 原生语音架构对比，以及浏览器、应用服务器和 OpenAI 之间的数据流"></p>
 <p>“端到端”描述的是模型的输入输出路径。声音仍然需要采集、编码、传输和播放，系统仍然需要认证与业务逻辑。公开 API 文档不足以确定模型内部的音频编码器、离散音频表示、网络层数或训练配方，也不能据此断言其内部完全不使用文字表示。</p>
 <p>一个直接证据是：Realtime 会话的<strong>输入转写默认关闭</strong>。启用转写后，它由独立服务异步产生；官方明确提示，转写只能辅助理解输入，不能当作模型实际听到内容的精确记录。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/reference/resources/realtime/subresources/client_secrets/methods/create">输入转写契约</a></p>
 <h3 id="延迟来自整个交互链路"><a href="#延迟来自整个交互链路" class="headerlink" title="延迟来自整个交互链路"></a>延迟来自整个交互链路</h3><p>持续上传音频，使服务端能够在用户讲话期间接收输入；分段返回回答，使播放器无需等待整段语音生成完毕。一次接话的等待时间，可以用下面的工程模型分析：</p>
@@ -384,113 +322,35 @@
 </tbody></table>
 <p>上述指标是应用侧的评估建议，不是 OpenAI 公布的服务承诺。只有在真实网络、拾音设备与业务工具上测量，才能判断 mini 模型是否足够，以及需要怎样调整轮次检测和推理强度。</p>
 <p>本文示例按官方接口完成配置核对，并进行本地语法、页面构建及模拟上游的 HTTP 流程验证；未使用真实 API Key 发起通话。真实音频质量、延迟和账户可用性需要读者在自己的环境中验证。</p>
-
-        </div>
-          
-        <div class="top-div">
-          <ol class="top-box"><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E5%90%AB%E4%B9%89"><span class="top-box-text">端到端语音对话的含义</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%8E%E4%B8%B2%E8%81%94%E7%B3%BB%E7%BB%9F%E5%88%B0%E5%8E%9F%E7%94%9F%E9%9F%B3%E9%A2%91%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="top-box-text">从串联系统到原生音频输入输出</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BB%B6%E8%BF%9F%E6%9D%A5%E8%87%AA%E6%95%B4%E4%B8%AA%E4%BA%A4%E4%BA%92%E9%93%BE%E8%B7%AF"><span class="top-box-text">延迟来自整个交互链路</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E8%83%BD%E5%8A%9B%E8%8C%83%E5%9B%B4"><span class="top-box-text">模型与接口的能力范围</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E4%B8%93%E9%A1%B9%E9%9F%B3%E9%A2%91%E6%8E%A5%E5%8F%A3"><span class="top-box-text">对话模型与专项音频接口</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BD%93%E5%89%8D%E5%AF%B9%E8%AF%9D%E6%A8%A1%E5%9E%8B"><span class="top-box-text">当前对话模型</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%AF%AD%E9%9F%B3%E8%A1%A8%E7%8E%B0%E4%B8%8E%E6%8E%A8%E7%90%86%E9%85%8D%E7%BD%AE"><span class="top-box-text">语音表现与推理配置</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%B8%80%E8%BD%AE%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="top-box-text">一轮语音对话的执行过程</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BC%9A%E8%AF%9D%E3%80%81%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%9B%9E%E7%AD%94"><span class="top-box-text">会话、历史与回答</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%88%A4%E6%96%AD%E7%94%A8%E6%88%B7%E6%98%AF%E5%90%A6%E8%AF%B4%E5%AE%8C"><span class="top-box-text">判断用户是否说完</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E7%94%A8%E6%88%B7%E6%8F%92%E8%AF%9D%E5%90%8E%E7%9A%84%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%8E%86%E5%8F%B2%E5%90%8C%E6%AD%A5"><span class="top-box-text">用户插话后的音频与历史同步</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BA%8B%E4%BB%B6%E5%AE%8C%E6%88%90%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%88%90%E5%8A%9F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="top-box-text">事件完成与业务成功的区别</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%B8%89%E7%A7%8D%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F"><span class="top-box-text">三种连接方式</span></a></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#WebRTC-%E6%9C%80%E5%B0%8F%E6%8E%A5%E5%85%A5%E7%A4%BA%E4%BE%8B"><span class="top-box-text">WebRTC 最小接入示例</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%BF%90%E8%A1%8C%E5%87%86%E5%A4%87"><span class="top-box-text">运行准备</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BB%BA%E7%AB%8B%E4%BC%9A%E8%AF%9D"><span class="top-box-text">服务端建立会话</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BC%A0%E8%BE%93%E9%9F%B3%E9%A2%91%E4%B8%8E%E5%A4%84%E7%90%86%E4%BA%8B%E4%BB%B6"><span class="top-box-text">浏览器传输音频与处理事件</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%B8%B4%E6%97%B6%E5%87%AD%E8%AF%81%E4%B8%8E-Agents-SDK"><span class="top-box-text">临时凭证与 Agents SDK</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E4%B8%8E%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90"><span class="top-box-text">工具调用与业务系统集成</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BE%B9%E7%95%8C"><span class="top-box-text">函数调用的执行边界</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A7%E5%88%B6%E8%BF%9E%E6%8E%A5"><span class="top-box-text">服务端控制连接</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E4%BD%BF%E7%94%A8%E9%99%90%E5%88%B6%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D"><span class="top-box-text">使用限制与工程取舍</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BC%9A%E8%AF%9D%E6%97%B6%E9%95%BF%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8D%E6%98%AF%E6%B0%B8%E4%B9%85%E8%AE%B0%E5%BF%86"><span class="top-box-text">会话时长与上下文不是永久记忆</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E9%9F%B3%E9%A2%91%E6%A0%BC%E5%BC%8F%E3%80%81%E9%9F%B3%E8%89%B2%E4%B8%8E%E5%AD%97%E5%B9%95"><span class="top-box-text">音频格式、音色与字幕</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E8%AF%86%E5%88%AB%E5%87%86%E7%A1%AE%E6%80%A7%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%A3%B0%E5%AD%A6%E6%9D%A1%E4%BB%B6"><span class="top-box-text">识别准确性与设备声学条件</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E6%9D%83%E9%99%90%E3%80%81%E6%95%B0%E6%8D%AE%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="top-box-text">权限、数据与服务可用性</span></a></li></ol></li><li class="top-box-item top-box-level-2"><a class="top-box-link" href="#%E6%88%90%E6%9C%AC%E4%BC%B0%E7%AE%97%E4%B8%8E%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95"><span class="top-box-text">成本估算与验证方法</span></a><ol class="top-box-child"><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E5%BD%93%E5%89%8D%E4%BB%B7%E6%A0%BC"><span class="top-box-text">当前价格</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%8E%E9%9F%B3%E9%A2%91%E6%97%B6%E9%95%BF%E5%88%B0%E5%A2%9E%E9%87%8F%E6%88%90%E6%9C%AC"><span class="top-box-text">从音频时长到增量成本</span></a></li><li class="top-box-item top-box-level-3"><a class="top-box-link" href="#%E4%BB%A5%E5%AE%9E%E9%99%85%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BD%95%E9%AA%8C%E8%AF%81%E6%96%B9%E6%A1%88"><span class="top-box-text">以实际会话记录验证方案</span></a></li></ol></li></ol>
-        </div>
-          
-      </div>
-    </div>
-
-    
-      <div class="next-post">
-        <a class="purple-link" href="/2026/08/31/cognitive-decision-models/">
-          <h3 class="post-title">
-            下一篇：常见的认知决策模型：从问题拆解到行动闭环
-          </h3>
-        </a>
-      </div>
-    
-  </div>
-
-
-    <div id="gitalk-container"></div>
-
-
-
-    <link rel="stylesheet" href="/style/gitalk.min.css"/>
-    <script src="/js/gitalk.min.js"></script>
-    <script>
-        const config = {"clientId":"Ov23ctHktH8663nWo7p3","clientSecret":"17ed39dfe9fd4213784f3600cbb3591c2a2d3180","repository":"orrrrz.github.io","owner":"orrrrz","createIssueManually":false};
-        const gitalk = new Gitalk({
-            clientID: config.clientId,
-            clientSecret: config.clientSecret,
-            repo: config.repository,
-            owner: config.owner,
-            admin: [config.owner],
-            id: location.pathname.slice(1, location.pathname.lastIndexOf('/')).substring(0, 49),       // Ensure uniqueness and length less than 50
-            distractionFreeMode: false,  // Facebook-like distraction free mode
-            createIssueManually: config.createIssueManually ? true : false
-        });
-
-        gitalk.render('gitalk-container')
-
-    </script>
-
-
-
-
-
-
-
-<footer>
-<div class="site-footer">
-  <div class="social-container">
-    
-      
-        <a aria-label="跳转至github" href="https://github.com/orrrrz" target="_blank">
-          <i class="icon icon-github"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-  
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <a href="https://github.com/f-dong/hexo-theme-minimalism" target="_blank">Theme</a>
-  
-  
-  
-  
-  
-  
 </div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/LLM/">LLM</a><a href="/tags/OpenAI/">OpenAI</a><a href="/tags/%E8%AF%AD%E9%9F%B3%E4%BA%A4%E4%BA%92/">语音交互</a><a href="/tags/Realtime-API/">Realtime API</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22OpenAI%20Realtime%20API%20%E8%AF%A6%E8%A7%A3%EF%BC%9A%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%AF%AD%E9%9F%B3%E5%AF%B9%E8%AF%9D%E7%9A%84%E5%8E%9F%E7%90%86%E3%80%81%E8%83%BD%E5%8A%9B%E4%B8%8E%E6%8E%A5%E5%85%A5%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2026/09/09/llm/gpt-live-explained/"><span>← 上一篇</span><strong>GPT-Live 技术原理：实时语音如何驱动后台任务</strong></a><a href="/2026/08/31/cognitive-decision-models/"><span>下一篇 →</span><strong>常见的认知决策模型：从问题拆解到行动闭环</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
 </footer>
 
-
-      </div>
-    </div>
-    
-<script id="hexo-configurations"> window.theme_config = {"image":{"lazyload_enable":true,"photo_zoom":"simple-lightbox"}}; window.is_post = true; </script>
-
-<script src="/js/main.js"></script>
-
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-BD6SR7X2TB');
-    </script>
-
-
-
-
-
-  <script src="/js/simple-lightbox.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {new SimpleLightbox('.post-detail .simple-lightbox', {fileExt: false,captionsData:'alt'});});</script></body>
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
 </html>
-
