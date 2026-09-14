@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">从经验更新到递归自我改进</title>
+  <desc id="desc">任务产生证据，改进组件提出候选，验证组件评估，保存通过验证的版本供后续任务使用。递归路径进一步评估和修改改进组件，并把新方法用于之后的改进。</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M0 0 8 4 0 8Z" fill="#51665e"/></marker><marker id="orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#a15a27"/></marker></defs>
+  <rect width="800" height="800" rx="12" fill="#faf8f3"/>
+  <g font-family="PingFang SC, Microsoft YaHei, sans-serif" fill="#243c34">
+    <text x="40" y="51" font-size="27" font-weight="600">一轮工作留下两类可复用变化</text>
+    <text x="40" y="83" font-size="17" fill="#5d6a64">绿色路径更新助手能力；橙色路径更新改进方法。</text>
+    <g fill="#e6eee8" stroke="#9aafa0" stroke-width="1.5">
+      <rect x="75" y="120" width="420" height="94" rx="8"/>
+      <rect x="75" y="258" width="420" height="94" rx="8"/>
+      <rect x="75" y="396" width="420" height="94" rx="8"/>
+      <rect x="75" y="534" width="420" height="94" rx="8"/>
+    </g>
+    <g font-size="22" font-weight="600">
+      <text x="97" y="155">① 助手执行任务，留下证据</text>
+      <text x="97" y="293">② 改进组件提出候选修改</text>
+      <text x="97" y="431">③ 验证组件比较新旧版本</text>
+      <text x="97" y="569">④ 保存通过验证的变化</text>
+    </g>
+    <g font-size="18" fill="#52675d">
+      <text x="97" y="187">输入、工具调用、测试结果、人工纠正</text>
+      <text x="97" y="325">工具说明、技能、执行程序、模型参数</text>
+      <text x="97" y="463">独立任务、已有能力、资源成本</text>
+      <text x="97" y="601">版本、证据、适用条件与恢复点</text>
+    </g>
+    <g fill="none" stroke="#51665e" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M285 214V251"/><path d="M285 352V389"/><path d="M285 490V527"/>
+      <path d="M75 581H35V167H68"/>
+    </g>
+    <text x="76" y="661" font-size="18">后续任务继承新版本，继续产生反馈</text>
+    <rect x="530" y="258" width="234" height="370" rx="8" fill="#f7eadd" stroke="#c29164" stroke-width="1.5"/>
+    <g fill="#884a21">
+      <text x="550" y="294" font-size="22" font-weight="600">L5 的递归路径</text>
+      <text x="550" y="340" font-size="18">检查改进过程的效果</text>
+      <text x="550" y="375" font-size="18">例如：总结出的技能</text>
+      <text x="550" y="402" font-size="18">在新任务中反复失效</text>
+      <text x="550" y="454" font-size="18">修改技能生成或</text>
+      <text x="550" y="481" font-size="18">筛选方法，验证收益</text>
+      <text x="550" y="541" font-size="18" font-weight="600">让新方法参与</text>
+      <text x="550" y="570" font-size="18" font-weight="600">下一轮改进</text>
+    </g>
+    <g fill="none" stroke="#a15a27" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#orange)">
+      <path d="M495 581H523"/><path d="M647 258V235H455V251"/>
+    </g>
+    <rect x="35" y="690" width="729" height="66" rx="6" fill="#eae7df"/>
+    <text x="53" y="716" font-size="18">外部约束：总体目标、受保护的评估、资源与发布权限</text>
+    <text x="53" y="742" font-size="16" fill="#59635e">每次候选修改均需验证；失败候选保留记录，继续使用已验证版本。</text>
+    <text x="40" y="782" font-size="14" fill="#68736d">教学示意，依据 arXiv:2609.11873v1 §2.2 与 §3.6 重绘</text>
+  </g>
+</svg>
