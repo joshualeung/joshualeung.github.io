@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" role="img" aria-labelledby="title desc">
+  <title id="title">照片风格化 Skill 的工作流程</title>
+  <desc id="desc">照片和风格要求经过输入检查、提示词组织与模型编辑，生成候选结果。结果检查通过后保存；需要修改时调整指令并重新使用原图。</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#77796c" stroke-width="1.5"/></marker></defs>
+  <rect width="900" height="500" rx="18" fill="#f5f3ed"/>
+  <g font-family="system-ui, -apple-system, 'PingFang SC', sans-serif" fill="#272e29">
+    <text x="38" y="48" font-size="24" font-weight="650">从一张照片到一种画风</text>
+    <text x="38" y="78" font-size="15" fill="#62675e">Skill 安排步骤 · 工具提交图片 · 模型生成画面</text>
+    <g fill="#fffefa" stroke="#d8dbd0" stroke-width="1.5">
+      <rect x="38" y="120" width="240" height="102" rx="12"/>
+      <rect x="330" y="120" width="240" height="102" rx="12"/>
+      <rect x="622" y="120" width="240" height="102" rx="12"/>
+      <rect x="622" y="288" width="240" height="102" rx="12"/>
+      <rect x="330" y="288" width="240" height="102" rx="12"/>
+      <rect x="38" y="288" width="240" height="102" rx="12" fill="#e5ecdf" stroke="#b9c7ad"/>
+    </g>
+    <g font-size="20" font-weight="600">
+      <text x="58" y="155">01  检查输入</text><text x="350" y="155">02  组织编辑指令</text><text x="642" y="155">03  调用图像模型</text>
+      <text x="642" y="324">04  取得候选图</text><text x="350" y="324">05  检查结果</text><text x="58" y="324">06  保存与交付</text>
+    </g>
+    <g font-size="15" fill="#62675e">
+      <text x="58" y="185">原图、人物、构图</text><text x="58" y="206">文件方向与尺寸</text>
+      <text x="350" y="185">风格预设 + 保留项</text><text x="350" y="206">明确允许变化的范围</text>
+      <text x="642" y="185">提交真实图像数据</text><text x="642" y="206">附带指令与输出参数</text>
+      <text x="642" y="355">下载并解码图片</text><text x="642" y="376">为每次输出单独命名</text>
+      <text x="350" y="355">风格是否符合要求？</text><text x="350" y="376">主体与构图是否保留？</text>
+      <text x="58" y="355">生成图 + 执行记录</text><text x="58" y="376">保留原始照片</text>
+    </g>
+    <g fill="none" stroke="#77796c" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M280 170H319"/><path d="M572 170H611"/><path d="M742 224V278"/>
+      <path d="M620 339H581"/><path d="M328 339H289"/>
+      <path d="M450 286V234"/>
+    </g>
+    <text x="468" y="260" font-size="14" fill="#7e5d35">调整指令，继续使用原图</text>
+    <text x="38" y="451" font-size="15" fill="#62675e">结果检查与有限重试属于完整流程的设计建议，具体 Skill 未必已经实现。</text>
+    <text x="38" y="477" font-size="13" fill="#7a7e74">流程示意 · 非模型内部架构</text>
+  </g>
+</svg>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>照片风格化 Skills 是如何工作的：从风格预设到图像编辑工作流 | 击壤而歌</title>
+  <meta name="description" content="拆解 Nano Banana、baoyu-image-gen 与风格迁移类 Agent Skills，解释原图输入、风格提示词、模型调用和结果检查如何协作，以及人物一致性为什么仍然需要验证。">
+  <meta name="theme-color" content="#f9f8f4">
+  <meta property="og:title" content="照片风格化 Skills 是如何工作的：从风格预设到图像编辑工作流">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="http://orrrrz.github.io/2026/09/15/llm/photo-stylization-skills/">
+  <meta property="og:description" content="拆解 Nano Banana、baoyu-image-gen 与风格迁移类 Agent Skills，解释原图输入、风格提示词、模型调用和结果检查如何协作，以及人物一致性为什么仍然需要验证。">
+  <link rel="canonical" href="http://orrrrz.github.io/2026/09/15/llm/photo-stylization-skills/">
+  <link rel="icon" type="image/svg+xml" href="/gazette.svg">
+  <link rel="stylesheet" href="/css/gazette.css">
+  <script>try{var s=localStorage.getItem('gazette-font-size');if(['standard','large','larger'].includes(s))document.documentElement.dataset.readingSize=s}catch(e){}</script>
+  <script defer src="/js/gazette.js"></script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BD6SR7X2TB"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',"G-BD6SR7X2TB");</script>
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+<body id="top" class="content-page article-page">
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+  <a class="brand" href="/" aria-label="击壤而歌，首页">击壤而歌</a>
+  <nav class="main-nav" aria-label="主导航">
+    <a href="/archives/" aria-current="location">文章</a>
+    <a href="/tags/" >主题</a>
+    <a href="/about/" >关于</a>
+    <button class="search-trigger" type="button" data-open-search aria-label="搜索文章" hidden>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <span>搜索</span>
+    </button>
+  </nav>
+</header>
+
+  <main id="main" class="site-main" tabindex="-1"><article class="article">
+  <header class="article-header">
+    <h1>照片风格化 Skills 是如何工作的：从风格预设到图像编辑工作流</h1>
+    <p class="article-deck">拆解 Nano Banana、baoyu-image-gen 与风格迁移类 Agent Skills，解释原图输入、风格提示词、模型调用和结果检查如何协作，以及人物一致性为什么仍然需要验证。</p>
+    <div class="article-byline">
+      <div class="article-meta"><span class="article-author">风中散发</span><div class="post-meta"><time datetime="2026-09-15">2026年9月15日</time><span class="meta-dot">·</span><span>10 分钟阅读</span></div>
+</div>
+      <details class="reading-tools" hidden>
+        <summary>阅读设置</summary>
+        <div class="reading-options"><label for="reading-size">正文字号</label><select id="reading-size"><option value="standard">标准</option><option value="large">大字</option><option value="larger">特大</option></select></div>
+      </details>
+    </div>
+  </header>
+  
+  <div class="article-reading">
+    <div class="article-outline"><details class="article-toc"><summary>文章目录 <span aria-hidden="true"></span></summary><nav aria-label="本文目录"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Skill%E3%80%81%E5%B7%A5%E5%85%B7%E4%B8%8E%E5%9B%BE%E5%83%8F%E6%A8%A1%E5%9E%8B%E5%88%86%E5%88%AB%E8%B4%9F%E8%B4%A3%E4%BB%80%E4%B9%88"><span class="toc-text">Skill、工具与图像模型分别负责什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E4%B8%AA%E5%8F%AF%E4%BB%A5%E4%BB%8E%E6%BA%90%E7%A0%81%E7%90%86%E8%A7%A3%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">三个可以从源码理解的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Nano-Banana-%E7%B1%BB-Skill%EF%BC%9A%E8%84%9A%E6%9C%AC%E5%B0%81%E8%A3%85%E5%9B%BE%E5%83%8F%E7%BC%96%E8%BE%91%E6%8E%A5%E5%8F%A3"><span class="toc-text">Nano Banana 类 Skill：脚本封装图像编辑接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A3%8E%E6%A0%BC%E8%BF%81%E7%A7%BB%E7%B1%BB-Skill%EF%BC%9A%E6%8A%8A%E7%94%BB%E9%A3%8E%E6%95%B4%E7%90%86%E4%B8%BA%E9%A2%84%E8%AE%BE"><span class="toc-text">风格迁移类 Skill：把画风整理为预设</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baoyu-image-gen%EF%BC%9A%E7%BB%9F%E4%B8%80%E5%8F%82%E8%80%83%E5%9B%BE%E4%B8%8E%E5%A4%9A%E5%90%8E%E7%AB%AF%E8%B0%83%E7%94%A8"><span class="toc-text">baoyu-image-gen：统一参考图与多后端调用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A3%8E%E6%A0%BC%E8%A6%81%E6%B1%82%E6%80%8E%E6%A0%B7%E5%8F%98%E6%88%90%E6%9C%89%E6%95%88%E7%9A%84%E7%BC%96%E8%BE%91%E6%8C%87%E4%BB%A4"><span class="toc-text">风格要求怎样变成有效的编辑指令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%85%A7%E7%89%87%E5%A4%84%E7%90%86%E5%8F%AF%E4%BB%A5%E6%80%8E%E6%A0%B7%E6%89%A7%E8%A1%8C"><span class="toc-text">一次照片处理可以怎样执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E7%A1%AE%E8%AE%A4%E5%8E%9F%E5%9B%BE%E5%8F%AF%E4%BB%A5%E6%AD%A3%E7%A1%AE%E8%AF%BB%E5%8F%96"><span class="toc-text">第一步：确认原图可以正确读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%BF%9D%E7%95%99%E9%A1%B9%E4%B8%8E%E9%A3%8E%E6%A0%BC%E6%8F%8F%E8%BF%B0"><span class="toc-text">第二步：记录保留项与风格描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E8%B0%83%E7%94%A8%E6%94%AF%E6%8C%81%E5%8E%9F%E5%9B%BE%E7%BC%96%E8%BE%91%E7%9A%84%E5%90%8E%E7%AB%AF"><span class="toc-text">第三步：调用支持原图编辑的后端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E5%90%8C%E6%97%B6%E6%A3%80%E6%9F%A5%E9%A3%8E%E6%A0%BC%E4%B8%8E%E5%86%85%E5%AE%B9"><span class="toc-text">第四步：同时检查风格与内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E6%9C%89%E9%99%90%E4%BF%AE%E6%94%B9%E5%B9%B6%E4%BF%9D%E5%AD%98%E6%89%A7%E8%A1%8C%E8%AE%B0%E5%BD%95"><span class="toc-text">第五步：有限修改并保存执行记录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%8A%8A%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%BB%84%E7%BB%87%E4%B8%BA%E4%B8%80%E4%B8%AA-Skill"><span class="toc-text">如何把工作流组织为一个 Skill</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E7%85%A7%E7%89%87%E9%A3%8E%E6%A0%BC%E5%8C%96-Skill-%E6%98%AF%E5%90%A6%E9%80%82%E5%90%88%E4%BD%BF%E7%94%A8"><span class="toc-text">判断一个照片风格化 Skill 是否适合使用</span></a></li></ol></nav></details></div>
+    <div class="article-body"><div class="prose"><p>把旅行照变成水彩画、把宠物照变成黏土角色、把家庭合影变成手绘动画，是图像生成应用中很直观的一类需求。最近，这些能力也出现在 Agent Skills 中：用户提供照片和风格要求，智能体就能选择工具、调用模型，并保存处理结果。</p>
+<p><strong>这类 Skill 的核心，是将照片编辑的操作经验写成可重复执行的工作流。</strong> 决定画面如何生成的是图像模型；Skill 负责组织输入、表达约束和安排执行步骤。同一个模型配上不同的 Skill，使用体验和结果稳定性可能相差很大。</p>
+<p>本文依据 <strong>2026 年 9 月 15 日</strong> 可查阅的项目源码与官方文档，介绍几种代表性实现。项目选择以代码可核查、实现方式有代表性为依据；没有统一的安装量或使用量数据，因此不按“热门程度”排名。本文是实现机制解析，未对各模型进行照片效果横向实测。</p>
+<span id="more"></span>
+
+<h2 id="Skill、工具与图像模型分别负责什么"><a href="#Skill、工具与图像模型分别负责什么" class="headerlink" title="Skill、工具与图像模型分别负责什么"></a>Skill、工具与图像模型分别负责什么</h2><p>Agent Skills 规范将一个 Skill 定义为包含 <code>SKILL.md</code> 的目录。文件头部的名称和描述帮助智能体识别适用任务，正文提供执行说明；脚本、参考资料和素材可以放在附属目录中，按需读取。<a target="_blank" rel="noopener" href="https://agentskills.io/specification">Agent Skills 格式规范</a></p>
+<p>在照片风格化任务中，可以把它们的职责分成三层：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>负责的事情</th>
+<th>照片转水彩的例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Skill</td>
+<td>规定任务步骤、风格选择与检查要求</td>
+<td>读取照片，选水彩预设，保留人物与构图</td>
+</tr>
+<tr>
+<td>执行工具</td>
+<td>传输图片、提交请求、取得并保存结果</td>
+<td>Python 脚本读取文件，调用服务接口，写出 PNG</td>
+</tr>
+<tr>
+<td>图像模型</td>
+<td>根据图片和指令生成新的像素</td>
+<td>将摄影质感重新表现为水彩笔触与纸张纹理</td>
+</tr>
+</tbody></table>
+<p>安装 Skill 通常不会给本地安装一套新的图像模型权重，也不会自动训练一种新画风。它可以使用现有图像工具，也可以附带调用云端服务或本地推理服务的脚本。是否需要密钥、网络和 GPU，取决于执行工具连接的后端。</p>
+<p>下面展示一个适合照片风格化的流程。其中结果检查和有限重试是本文的工程建议，具体项目未必全部实现。</p>
+<p><img src="/assets/llm/photo-stylization-workflow.svg" alt="照片风格化工作流：原图和风格要求经过输入检查、提示词组织和图像模型处理，输出结果经过检查后保存；需要修改时回到原图和提示词阶段"></p>
+<h2 id="三个可以从源码理解的实现"><a href="#三个可以从源码理解的实现" class="headerlink" title="三个可以从源码理解的实现"></a>三个可以从源码理解的实现</h2><h3 id="Nano-Banana-类-Skill：脚本封装图像编辑接口"><a href="#Nano-Banana-类-Skill：脚本封装图像编辑接口" class="headerlink" title="Nano Banana 类 Skill：脚本封装图像编辑接口"></a>Nano Banana 类 Skill：脚本封装图像编辑接口</h3><p><code>steipete/agent-scripts</code> 中的 <code>nano-banana-pro</code> 提供了很直接的实现：<code>SKILL.md</code> 说明何时传入原图、怎样指定输出文件，以及如何进行草稿迭代；<code>generate_image.py</code> 承担实际请求。<a target="_blank" rel="noopener" href="https://github.com/steipete/agent-scripts/blob/main/skills/nano-banana-pro/SKILL.md">Skill 说明</a></p>
+<p>它的编辑过程可以概括为三步：</p>
+<ol>
+<li>脚本打开 <code>--input-image</code> 指定的图片。</li>
+<li>将图片对象和编辑指令一起交给模型。</li>
+<li>从响应中提取图像数据，转换并保存为 PNG。</li>
+</ol>
+<p>检查时，这个目录仍叫 <code>nano-banana-pro</code>，脚本却已调用 <code>gemini-3.1-flash-image-preview</code>。<strong>Skill 名称不能用来确认实际模型版本</strong>，需要查看请求中的模型标识。<a target="_blank" rel="noopener" href="https://github.com/steipete/agent-scripts/blob/main/skills/nano-banana-pro/scripts/generate_image.py">调用脚本</a></p>
+<p>这也解释了为什么不能只把“照片里有一只橘猫”写进提示词：照片本身包含了毛色分布、姿势和背景关系。只有把原图真正传给支持图片输入的接口，编辑模型才有这些视觉依据。Gemini 官方指南提供了图片加文字的编辑，以及多图组合与风格迁移示例。<a target="_blank" rel="noopener" href="https://ai.google.dev/gemini-api/docs/image-generation">Gemini 图像生成与编辑指南</a></p>
+<h3 id="风格迁移类-Skill：把画风整理为预设"><a href="#风格迁移类-Skill：把画风整理为预设" class="headerlink" title="风格迁移类 Skill：把画风整理为预设"></a>风格迁移类 Skill：把画风整理为预设</h3><p><code>Mikefluff/skills</code> 的 <code>style-transfer</code> 展示了另一种组织方式：先接收现有图片，再选水彩、素描、水墨、漫画等预设，然后调用图像编辑后端。它将风格说明和服务说明放进独立参考文件。<a target="_blank" rel="noopener" href="https://github.com/Mikefluff/skills/blob/main/skills/style-transfer/SKILL.md">任务流程</a></p>
+<p>预设的主要内容是文字。例如，水彩预设描述透明色层、笔触和纸张质感；素描预设描述石墨明暗与排线。智能体可以将这些描述与用户补充要求组合起来。预设也可能引用素材或专门的模型，但这个项目的风格目录主要展示了提示词组织方法。<a target="_blank" rel="noopener" href="https://github.com/Mikefluff/skills/blob/main/skills/style-transfer/references/styles.md">风格预设文件</a></p>
+<p>这里需要区分“流程说明”与“已经验证的能力”。该 Skill 文档中的默认后端、价格和人物保持比例，不能直接视为当前服务保证。尤其是人物保持百分比，在所查文件中未附可复核的测试方法，本文不采用这些数值。</p>
+<p>版本也会影响选型：这个示例仍以 FLUX.1 Kontext 为默认方向，而 Black Forest Labs 当前已将 Kontext 列入旧模型，并在其概览中建议新项目考虑 FLUX.2。旧 Skill 仍可用于理解架构，实际接入应核对服务方现行文档。<a target="_blank" rel="noopener" href="https://docs.bfl.ai/kontext/kontext_overview">Kontext 官方概览</a></p>
+<h3 id="baoyu-image-gen：统一参考图与多后端调用"><a href="#baoyu-image-gen：统一参考图与多后端调用" class="headerlink" title="baoyu-image-gen：统一参考图与多后端调用"></a>baoyu-image-gen：统一参考图与多后端调用</h3><p><code>baoyu-image-gen</code> 是通用图像生成入口，具有参考图、提示词文件、输出比例和批处理等参数。它适合作为上层照片风格化流程的执行工具：上层负责准备风格要求，底层负责读取图片和调用选定服务。<a target="_blank" rel="noopener" href="https://github.com/JimLiu/baoyu-skills/blob/main/skills/baoyu-image-gen/SKILL.md">Skill 参数说明</a></p>
+<p>它在人物保持方面的指导很具体：明确要求使用参考图中的同一个主体，避免用长篇通用外貌描述替代原图，也提醒生成图反复充当参考图可能造成偏移。这些是提示词与流程设计建议，效果仍需检查。</p>
+<p>在其 Google 后端代码中，可以看到参考图读取、图像数据封装和请求构造。统一的命令行入口简化了调用，但不同模型对参考图的支持范围仍然不同；接口提供了 <code>--ref</code>，不代表每个后端都能执行相同的编辑任务。<a target="_blank" rel="noopener" href="https://github.com/JimLiu/baoyu-skills/blob/main/skills/baoyu-image-gen/scripts/providers/google.ts">Google 后端实现</a></p>
+<h2 id="风格要求怎样变成有效的编辑指令"><a href="#风格要求怎样变成有效的编辑指令" class="headerlink" title="风格要求怎样变成有效的编辑指令"></a>风格要求怎样变成有效的编辑指令</h2><p>“做成水彩风格”给出了方向，但没有说明哪些内容可以变。对于照片，尤其是人物照片，风格化同时包含两个目标：<strong>改变表现手法，以及保留指定内容</strong>。</p>
+<p>一个便于维护的风格描述，可以拆成四个部分。下表是本文设计示例：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>需要回答的问题</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>媒介与纹理</td>
+<td>画面用什么材料表现？</td>
+<td>水彩，轻薄色层，细微纸纹</td>
+</tr>
+<tr>
+<td>色彩与光照</td>
+<td>用什么颜色和明暗关系？</td>
+<td>温暖低饱和色，柔和自然光</td>
+</tr>
+<tr>
+<td>内容约束</td>
+<td>哪些可见内容需要保留？</td>
+<td>两个人、原有站位、服装颜色、背景建筑</td>
+</tr>
+<tr>
+<td>变化范围</td>
+<td>哪些部分可以重新表现？</td>
+<td>允许简化纹理，人物五官比例保持接近原图</td>
+</tr>
+</tbody></table>
+<p>组合后的指令可以写成：</p>
+<blockquote>
+<p>将输入照片重新表现为温暖的水彩插画，使用轻薄色层、柔和边缘和细微纸张纹理。保留照片中的两个人、各自的五官比例、姿势、服装颜色与站位。保留背景建筑及原有画面裁切。背景细节可以适度简化，人物身份与构图的保持优先于夸张的风格效果。</p>
+</blockquote>
+<p>这里的价值来自信息明确，并不取决于提示词长度。Black Forest Labs 的图像编辑指南也强调，在说明改动时交代需要保持的内容。<a target="_blank" rel="noopener" href="https://docs.bfl.ai/kontext/kontext_image_editing">Kontext 图像编辑指南</a></p>
+<p>如果同时提供原照片和一张画风参考图，指令还需要明确各自角色：照片提供主体与构图，参考图提供笔触和色彩。否则模型可能把风格参考图中的人物、物体或场景也带入结果。多图输入的具体数量与处理方式应以所用模型为准。</p>
+<h2 id="一次照片处理可以怎样执行"><a href="#一次照片处理可以怎样执行" class="headerlink" title="一次照片处理可以怎样执行"></a>一次照片处理可以怎样执行</h2><p>下面以“把双人旅行照转成水彩插画”为例，给出一个完整工作流。这是根据前述实现整理的设计方案，并非任何单个项目的原样功能清单。</p>
+<h3 id="第一步：确认原图可以正确读取"><a href="#第一步：确认原图可以正确读取" class="headerlink" title="第一步：确认原图可以正确读取"></a>第一步：确认原图可以正确读取</h3><p>执行工具先检查文件是否存在、能否解码、方向是否正确，以及尺寸是否满足模型要求。智能体在具备看图能力时，再确认人物数量、构图和需要保留的细节。</p>
+<p>图片路径出现在文字提示词中，并不等于图片已上传。实现时需要明确区分“把路径写给模型”和“打开文件，将图像数据传给模型”。</p>
+<h3 id="第二步：记录保留项与风格描述"><a href="#第二步：记录保留项与风格描述" class="headerlink" title="第二步：记录保留项与风格描述"></a>第二步：记录保留项与风格描述</h3><p>智能体将“水彩风”展开为媒介、颜色与笔触要求，同时记录两个人的站位、衣服颜色和背景建筑。用户要求“照片里还是同一个人”时，这应当成为明确的检查项。</p>
+<p>对于含有文字、品牌标志或复杂饰品的图片，可以提前决定这些元素需要精确保留，还是允许绘画式简化。这样得到的验收条件更具体。</p>
+<h3 id="第三步：调用支持原图编辑的后端"><a href="#第三步：调用支持原图编辑的后端" class="headerlink" title="第三步：调用支持原图编辑的后端"></a>第三步：调用支持原图编辑的后端</h3><p>执行工具提交原图、最终提示词和受支持的输出参数。普通照片风格化可以先生成小尺寸候选，确定方向后再制作最终版本。</p>
+<p>需要注意，参数名不一定等于实际行为。前述 Nano Banana 脚本在 <code>--resolution</code> 为 <code>1K</code> 时，会根据输入图片尺寸重新选择输出分辨率。因此，对大图传入 <code>1K</code> 未必得到低分辨率草稿；采用这份脚本时需要检查这一分支，或在实现中区分“未指定”和“显式指定”。这是源码层面的行为，不是 Gemini 接口的通用规则。<a target="_blank" rel="noopener" href="https://github.com/steipete/agent-scripts/blob/main/skills/nano-banana-pro/scripts/generate_image.py">分辨率处理代码</a></p>
+<h3 id="第四步：同时检查风格与内容"><a href="#第四步：同时检查风格与内容" class="headerlink" title="第四步：同时检查风格与内容"></a>第四步：同时检查风格与内容</h3><p>检查应围绕用户要求展开：水彩质感是否明显、人数是否正确、脸部和手部是否出现异常、背景有没有新增物体、裁切是否改变。</p>
+<p>部分 Skill 只负责保存文件，并没有自动看图验收。例如，前述 Nano Banana Skill 的输出说明要求报告路径，不读取生成图。因此，不能因为 Skill 写了“完成”，就推断结果已经通过视觉检查。需要自动验收的应用应额外实现看图步骤，也可以将候选图交给用户选择。</p>
+<h3 id="第五步：有限修改并保存执行记录"><a href="#第五步：有限修改并保存执行记录" class="headerlink" title="第五步：有限修改并保存执行记录"></a>第五步：有限修改并保存执行记录</h3><p>如果结果的问题是人物被改得过多，下一次应明确收紧人物变化范围。需要保持原始内容时，可以继续使用原图并修改指令；用户明确要求在某张生成结果上继续创作时，再把该结果作为编辑基础。</p>
+<p>每次生成保存为新文件，并记录实际模型、提示词、输入标识、输出路径和重试次数。记录有助于定位差异，但不能保证云端模型每次逐像素复现相同结果。重试次数也应有上限，避免同一失败任务持续消耗调用额度。</p>
+<h2 id="如何把工作流组织为一个-Skill"><a href="#如何把工作流组织为一个-Skill" class="headerlink" title="如何把工作流组织为一个 Skill"></a>如何把工作流组织为一个 Skill</h2><p>按照 Agent Skills 的目录约定，可以采用下面的结构。它是用于说明分工的设计草图，不是可直接安装运行的完整软件包：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">photo-stylizer/</span><br><span class="line">  SKILL.md</span><br><span class="line">  references/</span><br><span class="line">    styles.md</span><br><span class="line">    quality-checks.md</span><br><span class="line">  scripts/</span><br><span class="line">    edit-image.py</span><br></pre></td></tr></table></figure>
+
+<p><code>SKILL.md</code> 中只需保留执行主线。例如，下面的文件片段描述了任务匹配与步骤；其中引用的脚本需要另行实现：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">name: photo-stylizer</span><br><span class="line"><span class="section">description: 将用户提供的照片处理为水彩、素描或黏土等风格，适用于需要保留主体和构图的图片编辑任务。</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line"><span class="section">## 工作流程</span></span><br><span class="line"></span><br><span class="line"><span class="bullet">1.</span> 检查输入照片，记录主体数量、构图与用户要求保留的内容。</span><br><span class="line"><span class="bullet">2.</span> 从 references/styles.md 读取所需风格，合并用户补充要求。</span><br><span class="line"><span class="bullet">3.</span> 使用 scripts/edit-image.py 提交原图与编辑指令。</span><br><span class="line"><span class="bullet">4.</span> 按 references/quality-checks.md 检查结果；缺少看图能力时注明未检查。</span><br><span class="line"><span class="bullet">5.</span> 必要时修改指令，在预设次数内重试。</span><br><span class="line"><span class="bullet">6.</span> 保存新图片与执行记录，返回结果路径。</span><br></pre></td></tr></table></figure>
+
+<p>风格文件负责视觉表达，脚本负责文件与接口，检查文件负责验收条件。这样的分工便于单独调整画风，也便于更换服务方。</p>
+<p>有现成工具时，Skill 也可以直接调用工具，省去自带脚本。Black Forest Labs 官方区分了两种入口：MCP 提供生成、编辑和变体等可调用工具；其 Agent Skills 提供提示词和 API 集成方面的知识。两者可以配合使用，Skill 不必承担图像传输的全部实现。<a target="_blank" rel="noopener" href="https://docs.bfl.ai/api_integration/mcp_integration">BFL 的 MCP 与 Agent Skills 说明</a></p>
+<p>如果已有本地 ComfyUI 工作流，同样可以让工具提交工作流并取回结果。ComfyUI 官方 Python SDK 支持加载工作流文件，连接自托管服务或云服务；这提供了一条可供 Skill 调用的执行路径。本文没有验证某个专门的 ComfyUI 照片风格化 Skill。<a target="_blank" rel="noopener" href="https://github.com/Comfy-Org/comfy-python-sdk">ComfyUI Python SDK</a></p>
+<h2 id="判断一个照片风格化-Skill-是否适合使用"><a href="#判断一个照片风格化-Skill-是否适合使用" class="headerlink" title="判断一个照片风格化 Skill 是否适合使用"></a>判断一个照片风格化 Skill 是否适合使用</h2><p>比较这类项目时，可以从下面几个实际问题入手：</p>
+<table>
+<thead>
+<tr>
+<th>检查问题</th>
+<th>能说明什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原图是否真正进入图像编辑接口？</td>
+<td>结果能否利用原照片的视觉信息</td>
+</tr>
+<tr>
+<td>风格预设是否有具体的纹理、色彩和构图描述？</td>
+<td>风格要求是否明确、便于修改</td>
+</tr>
+<tr>
+<td>实际调用哪个模型，支持哪些输入？</td>
+<td>项目宣传与当前执行能力是否一致</td>
+</tr>
+<tr>
+<td>是否检查人物、文字和背景的变化？</td>
+<td>保存文件之后是否还有质量验收</td>
+</tr>
+<tr>
+<td>是否保留原图、限制重试并记录实际参数？</td>
+<td>能否排查结果差异和控制调用成本</td>
+</tr>
+</tbody></table>
+<p>照片含有人物时，还需要理解上传路径：使用云端后端意味着图片会提交给相应服务。工具应使用已配置的凭据，并避免把密钥写入提示词、输出文件或公开日志。</p>
+<p>照片风格化 Skills 的共同思路，可以概括为：<strong>用可复用的说明组织任务，用明确的参考图和提示词约束变化，用图像工具执行，再根据具体要求检查结果。</strong> 风格预设降低了表达成本，执行脚本减少了操作步骤；人物是否仍然相似、画面是否满足预期，最终还需要通过实际输出判断。</p>
+</div>
+      <div class="article-extras">
+      <nav class="article-tags" aria-label="文章标签"><a href="/tags/Agent-Skills/">Agent Skills</a><a href="/tags/%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90/">图像生成</a><a href="/tags/%E7%85%A7%E7%89%87%E9%A3%8E%E6%A0%BC%E5%8C%96/">照片风格化</a><a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/">多模态</a></nav>
+      
+        <div class="article-discussion"><a href="https://github.com/orrrrz/orrrrz.github.io/issues?q=is%3Aissue%20in%3Atitle%20%22%E7%85%A7%E7%89%87%E9%A3%8E%E6%A0%BC%E5%8C%96%20Skills%20%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9A%E4%BB%8E%E9%A3%8E%E6%A0%BC%E9%A2%84%E8%AE%BE%E5%88%B0%E5%9B%BE%E5%83%8F%E7%BC%96%E8%BE%91%E5%B7%A5%E4%BD%9C%E6%B5%81%22" target="_blank" rel="noopener noreferrer">在 GitHub 讨论 ↗</a></div>
+      
+      </div>
+      <nav class="post-navigation" aria-label="相邻文章"><a href="/2026/09/14/llm/recursive-self-improvement-explained/"><span>下一篇 →</span><strong>AI 如何持续改进自己：递归自我改进论文解读</strong></a></nav>
+    </div>
+  </div>
+</article>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+</main>
+  <footer class="site-footer">
+  <span>© 2026 风中散发</span>
+  <span class="footer-credit">Hexo · Gazette</span>
+  <a href="#top">回到顶部 ↑</a>
+</footer>
+
+  <dialog class="search-dialog" aria-labelledby="search-title" data-search-url="/search.json">
+    <div class="search-heading"><h2 id="search-title">搜索文章</h2><button type="button" class="icon-button" data-close-search aria-label="关闭搜索">×</button></div>
+    <label for="search-input" class="search-label">输入标题、主题或正文关键词</label>
+    <input type="search" id="search-input" placeholder="例如：DeepSeek、认知、RAG" autocomplete="off">
+    <p class="search-status" role="status">让好奇心，找到下一篇好文章。</p>
+    <ul class="search-results"></ul>
+  </dialog>
+  
+    <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},svg:{fontCache:'global'}};</script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+</body>
+</html>
